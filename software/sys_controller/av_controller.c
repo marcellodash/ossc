@@ -140,6 +140,9 @@ typedef enum {
     DISABLE_ALC,
     LINETRIPLE_ENABLE,
     LINETRIPLE_MODE,
+    AUD_DW_SAMPLING,
+    AUD_SWAP_LR,
+    AUD_MUTE,
     TX_MODE,
 #ifndef DEBUG
     FW_UPDATE,
@@ -178,6 +181,9 @@ typedef struct {
     alt_u8 pre_coast;
     alt_u8 post_coast;
     alt_u8 disable_alc;
+    alt_u8 audio_dw_sampl;
+    alt_u8 audio_swap_lr;
+    alt_u8 audio_mute;
 } avconfig_t;
 
 // Target configuration
@@ -223,6 +229,9 @@ const menuitem_t menu[] = {
     { DISABLE_ALC,       "Auto Lev. Contr." },
     { LINETRIPLE_ENABLE, "240p/288p lineX3" },
     { LINETRIPLE_MODE,   "Linetriple mode" },
+    { AUD_DW_SAMPLING,   "Audio Downsampl." },
+    { AUD_SWAP_LR,       "Audio swap L/R" },
+    { AUD_MUTE,          "Mute Audio" },
     { TX_MODE,           "TX mode" },
 #ifndef DEBUG
     { FW_UPDATE,         "Firmware update" },
@@ -728,19 +737,52 @@ void setup_rc()
     }
 }
 
+// TODO: proper calculation of N-factor (???)
+void SetupAudio(BYTE bAudioEn, avconfig_t *avc)
+{
+    // shut down audio-tx before setting new config (recommended for changing audio-tx config)
+    DisableAudioOutput();
+    EnableAudioInfoFrame(FALSE, NULL);
+
+    if (bAudioEn) {
+        Switch_HDMITX_Bank(0);
+        BYTE uc = HDMITX_ReadI2C_Byte(REG_TX_CLK_CTRL1) & ~M_AUD_DIV;
+        alt_u32  pclk = (clkrate[cm.refclk]/cm.clkcnt)*video_modes[cm.id].h_total;
+
+        if (avc->audio_dw_sampl)
+        {
+            uc |= B_AUD_DIV2;
+            HDMITX_WriteI2C_Byte(REG_TX_CLK_CTRL1, uc);
+            EnableAudioOutput(pclk, AUDFS_48KHz, 2, 24, 0);
+        } else {
+            HDMITX_WriteI2C_Byte(REG_TX_CLK_CTRL1, uc);
+            EnableAudioOutput(pclk, AUDFS_96KHz, 2, 24, 0);
+        }
+
+        uc = HDMITX_ReadI2C_Byte(REG_TX_AUDIO_CTRL3) & ~B_S0RLCHG;
+        if (avc->audio_swap_lr)
+            uc |= B_S0RLCHG;
+        HDMITX_WriteI2C_Byte(REG_TX_AUDIO_CTRL3, uc);
+
+        if (avc->tx_mode == TX_HDMI)
+            HDMITX_SetAudioInfoFrame((BYTE) avc->audio_dw_sampl);
+    }
+}
+
 inline void TX_enable(tx_mode_t mode)
 {
-    // shut down TX before setting new config (recommended for changing audio-tx)
-    SetAVMute(TRUE);
-    DisableVideoOutput();
-    EnableAVIInfoFrame(FALSE, NULL);
-    // re-setup
+    //SetAVMute(TRUE);
     EnableVideoOutput(PCLK_MEDIUM, COLOR_RGB444, COLOR_RGB444, !mode);
     if (mode == TX_HDMI) {
         HDMITX_SetAVIInfoFrame(HDMI_480p60, F_MODE_RGB444, 0, 0);
+        if (!cm.cc.audio_mute)
+            HDMITX_SetAudioInfoFrame((BYTE) cm.cc.audio_dw_sampl); // in case audio is enabled
+    } else {
+	EnableAVIInfoFrame(FALSE, NULL);
+	EnableAudioInfoFrame(FALSE, NULL); // in case audio is enabled
     }
-    // start TX
-    SetAVMute(FALSE);
+
+    //SetAVMute(FALSE);
 }
 
 void display_menu(alt_u8 forcedisp)
@@ -830,17 +872,17 @@ void display_menu(alt_u8 forcedisp)
         sniprintf(menu_row2, LCD_ROW_LEN+1, "%d mV", ((tc.sync_thold-SYNC_THOLD_MIN)*1127)/100);
         break;
     case PRE_COAST:
-        if ((code == VAL_MINUS) && (tc.pre_coast > PLL_COAST_MIN))
-            tc.pre_coast--;
-        else if ((code == VAL_PLUS) && (tc.pre_coast < PLL_COAST_MAX))
-            tc.pre_coast++;
+        if (code == VAL_MINUS)
+            tc.pre_coast = tc.pre_coast > PLL_COAST_MIN ? tc.pre_coast-1 : PLL_COAST_MAX;
+        else if (code == VAL_PLUS)
+            tc.pre_coast = tc.pre_coast < PLL_COAST_MAX ? tc.pre_coast+1 : PLL_COAST_MIN;
         sniprintf(menu_row2, LCD_ROW_LEN+1, "%u lines", tc.pre_coast);
         break;
     case POST_COAST:
-        if ((code == VAL_MINUS) && (tc.post_coast > PLL_COAST_MIN))
-            tc.post_coast--;
-        else if ((code == VAL_PLUS) && (tc.post_coast < PLL_COAST_MAX))
-            tc.post_coast++;
+        if (code == VAL_MINUS)
+            tc.post_coast = tc.post_coast > PLL_COAST_MIN ? tc.post_coast-1 : PLL_COAST_MAX;
+        else if (code == VAL_PLUS)
+            tc.post_coast = tc.post_coast < PLL_COAST_MAX ? tc.post_coast+1 : PLL_COAST_MIN;
         sniprintf(menu_row2, LCD_ROW_LEN+1, "%u lines", tc.post_coast);
         break;
     case SYNC_LPF:
@@ -857,6 +899,11 @@ void display_menu(alt_u8 forcedisp)
         	tc.video_lpf = tc.video_lpf < VIDEO_LPF_MAX ? tc.video_lpf+1 : 0;
         strncpy(menu_row2, video_lpf_desc[tc.video_lpf], LCD_ROW_LEN+1);
         break;
+    case DISABLE_ALC:
+        if ((code == VAL_MINUS) || (code == VAL_PLUS))
+            tc.disable_alc = !tc.disable_alc;
+        sniprintf(menu_row2, LCD_ROW_LEN+1, tc.disable_alc ? "Disabled" : "Enabled");
+        break;
     case LINETRIPLE_ENABLE:
         if ((code == VAL_MINUS) || (code == VAL_PLUS))
             tc.linemult_target = !tc.linemult_target;
@@ -869,10 +916,20 @@ void display_menu(alt_u8 forcedisp)
         	tc.l3_mode = tc.l3_mode < L3_MODE_MAX ? tc.l3_mode+1 : 0;
         strncpy(menu_row2, l3_mode_desc[tc.l3_mode], LCD_ROW_LEN+1);
         break;
-    case DISABLE_ALC:
+    case AUD_DW_SAMPLING:
         if ((code == VAL_MINUS) || (code == VAL_PLUS))
-            tc.disable_alc = !tc.disable_alc;
-        sniprintf(menu_row2, LCD_ROW_LEN+1, tc.disable_alc ? "Disabled" : "Enabled");
+            tc.audio_dw_sampl = !tc.audio_dw_sampl;
+        sniprintf(menu_row2, LCD_ROW_LEN+1, tc.audio_dw_sampl ? "2x  (fs = 48kHz)" : "Off (fs = 96kHz)");
+        break;
+    case AUD_SWAP_LR:
+        if ((code == VAL_MINUS) || (code == VAL_PLUS))
+            tc.audio_swap_lr = !tc.audio_swap_lr;
+        sniprintf(menu_row2, LCD_ROW_LEN+1, tc.audio_swap_lr ? "On" : "Off");
+        break;
+    case AUD_MUTE:
+        if ((code == VAL_MINUS) || (code == VAL_PLUS))
+            tc.audio_mute = !tc.audio_mute;
+        sniprintf(menu_row2, LCD_ROW_LEN+1, tc.audio_mute ? "On" : "Off");
         break;
     case TX_MODE:
         if (!(IORD_ALTERA_AVALON_PIO_DATA(PIO_1_BASE) & HDMITX_MODE_MASK) && ((code == VAL_MINUS) || (code == VAL_PLUS))) {
@@ -1112,6 +1169,11 @@ status_t get_status(tvp_input_t input)
     if (tc.sync_lpf != cm.cc.sync_lpf)
         tvp_set_sync_lpf(tc.sync_lpf);
 
+    if ((tc.audio_dw_sampl != cm.cc.audio_dw_sampl) ||
+        (tc.audio_mute != cm.cc.audio_mute) ||
+        (tc.audio_swap_lr != cm.cc.audio_swap_lr))
+        SetupAudio(!tc.audio_mute,&tc);
+
     // use memcpy instead?
     cm.cc = tc;
 
@@ -1264,7 +1326,9 @@ int init_hw()
     TX_enable(TX_HDMI);
     if (cm.cc.tx_mode)
         TX_enable(cm.cc.tx_mode);
+    SetupAudio(FALSE,NULL);
 
+    SetAVMute(FALSE);
     return 0;
 }
 
@@ -1279,6 +1343,8 @@ void enable_outputs()
     // enable and unmute HDMITX
     // TODO: check pclk
     TX_enable(cm.cc.tx_mode);
+    SetupAudio(!cm.cc.audio_mute, &cm.cc);
+    SetAVMute(FALSE);
 }
 
 int main()
@@ -1299,7 +1365,7 @@ int main()
 
     if (init_stat >= 0) {
         printf("### DIY VIDEO DIGITIZER / SCANCONVERTER INIT OK ###\n\n");
-        sniprintf(row1, LCD_ROW_LEN+1, "OSSC  fw. %u.%.2u", fw_ver_major, fw_ver_minor);
+        sniprintf(row1, LCD_ROW_LEN+1, "OSSC  fw. %u.%.2ua", fw_ver_major, fw_ver_minor);
 #ifndef DEBUG
         strncpy(row2, "2014-2016  marqs", LCD_ROW_LEN+1);
 #else
@@ -1415,6 +1481,7 @@ int main()
             cm.sync_active = 0;
             ths_source_sel(target_ths, (cm.cc.video_lpf > 1) ? (VIDEO_LPF_MAX-cm.cc.video_lpf) : THS_LPF_BYPASS);
             tvp_disable_output();
+            DisableAudioOutput();
             tvp_source_sel(target_input, target_format, cm.refclk);
             cm.clkcnt = 0; //TODO: proper invalidate
             strncpy(row1, avinput_str[cm.avinput], LCD_ROW_LEN+1);
@@ -1440,6 +1507,7 @@ int main()
                     printf("Sync lost\n");
                     cm.clkcnt = 0; //TODO: proper invalidate
                     tvp_disable_output();
+                    DisableAudioOutput();
                     //ths_source_sel(THS_STANDBY, 0);
                     strncpy(row1, avinput_str[cm.avinput], LCD_ROW_LEN+1);
                     strncpy(row2, "    NO SYNC", LCD_ROW_LEN+1);
