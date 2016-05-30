@@ -113,20 +113,18 @@ int main()
             target_mode = AV_KEEP;
 
         if (target_mode != AV_KEEP) {
-            if (target_input > 5) {
+            if (target_input >= AV3_RGBHV) {
                 target_format = (target_mode == AV3_RGBHV) ? FORMAT_RGBHV : (target_mode == AV3_RGBs) ? FORMAT_RGBS : (target_mode == AV3_RGsB) ? FORMAT_RGsB : FORMAT_YPbPr;
         	target_ths = THS_STANDBY;
-            } else if (target_input > 3) {
+            } else if (target_input >= AV2_YPBPR) {
             	target_format = (target_mode == AV2_YPBPR) ? FORMAT_YPbPr : FORMAT_RGsB;
             	target_ths = THS_INPUT_A;
             } else {
             	target_format = (target_mode == AV1_RGBs) ? FORMAT_RGBS : (target_mode == AV1_RGsB) ? FORMAT_RGsB : FORMAT_YPbPr;
             	target_ths = THS_INPUT_B;
             }
-            target_input = (target_mode > 5) ? TVP_INPUT3 : TVP_INPUT1;
-//            target_format = ((target_mode == AV1_RGBs) || (target_mode == AV3_RGBs)) ? FORMAT_RGBS : ((target_mode == AV1_RGsB) || (target_mode == AV2_RGsB) || (target_mode == AV3_RGsB)) ? FORMAT_RGsB : (target_mode == AV3_RGBHV) ? FORMAT_RGBHV : FORMAT_YPbPr;
+            target_input = (target_mode >= AV3_RGBHV) ? TVP_INPUT3 : TVP_INPUT1;
             target_typemask = (target_mode == AV3_RGBHV) ? VIDEO_PC : VIDEO_LDTV|VIDEO_SDTV|VIDEO_EDTV|VIDEO_HDTV;
-//            target_ths = (target_mode > 5) ? THS_STANDBY : (target_mode > 3) ? THS_INPUT_A : THS_INPUT_B;
 
             printf("### SWITCH MODE TO %s ###\n", avinput_str[target_mode]);
             av_init = 1;
