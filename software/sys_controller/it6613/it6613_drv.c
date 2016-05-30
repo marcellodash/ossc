@@ -555,7 +555,7 @@ BOOL EnableAudioOutputShort4OSSC(ULONG VideoPixelClock,BYTE bAudioDwSampl,BYTE b
     BYTE fs = bAudioDwSampl ? AUDFS_48KHz : AUDFS_96KHz;
     Instance[0].bAudFs = fs;
     Instance[0].bOutputAudioMode = B_AUDFMT_STD_I2S;
-    Instance[0].bAudioChannelSwap = bAudioSwapLR ? 0xf : 0x0; // swap channels
+    Instance[0].bAudioChannelSwap = bAudioSwapLR == 0x1 ? 0xf : 0x0; // swap channels
     BYTE AudioEnable = (0x1 & ~(M_AUD_SWL|B_SPDIFTC)) | M_AUD_24BIT;
 
 //    Switch_HDMITX_Bank(0) ;
