@@ -39,6 +39,7 @@
 #include "av_controller.h"
 #include "controls.h"
 #include "memory.h"
+#include "flash.h"
 #include "menu.h"
 
 #define LINECNT_THOLD             1
@@ -48,11 +49,11 @@
 #define SYNC_LOSS_THOLD           5
 #define STATUS_TIMEOUT        10000
 
-extern alt_u16 rc_keymap[REMOTE_MAX_KEYS];
+extern alt_u16 rc_keymap[];
 
 extern const alt_u32 clkrate[];
 
-const char const *avinput_str[] = { "NO MODE", "AV1: RGBS", "AV1: RGsB", "AV2: YPbPr", "AV2: RGsB", "AV3: RGBHV", "AV3: RGBS", "AV3: RGsB" };
+const char const *avinput_str[] = { "-", "AV1: RGBS", "AV1: RGsB", "AV1: YPbPr", "AV2: YPbPr", "AV2: RGsB", "AV3: RGBHV", "AV3: RGBS", "AV3: RGsB", "AV3: YPbPr" };
 
 // Target configuration
 avconfig_t tc;
@@ -72,53 +73,36 @@ char row1[LCD_ROW_LEN+1], row2[LCD_ROW_LEN+1], menu_row1[LCD_ROW_LEN+1], menu_ro
 
 short int sd_fw_handle;
 
-extern volatile alt_u8 menu_active;
-extern volatile alt_u32 remote_code;
-extern volatile alt_u8 remote_rpt, remote_rpt_prev;
-extern volatile alt_u32 btn_code, btn_code_prev;
+extern alt_u8 menu_active;
+extern alt_u32 remote_code;
+extern alt_u8 remote_rpt, remote_rpt_prev;
+extern alt_u32 btn_code, btn_code_prev;
 
 
-
-
-// TODO: proper calculation of N-factor (???)
-void SetupAudio(BYTE bAudioEn, avconfig_t *avc)
+void SetupAudio(BYTE bAudioEn)
 {
     // shut down audio-tx before setting new config (recommended for changing audio-tx config)
     DisableAudioOutput();
     EnableAudioInfoFrame(FALSE, NULL);
 
-    if (bAudioEn && avc->tx_mode == TX_HDMI) {
-        Switch_HDMITX_Bank(0);
-        BYTE uc = HDMITX_ReadI2C_Byte(REG_TX_CLK_CTRL1) & ~M_AUD_DIV;
-        alt_u32  pclk = (clkrate[cm.refclk]/cm.clkcnt)*video_modes[cm.id].h_total;
-
-        if (avc->audio_dw_sampl)
-        {
-            uc |= B_AUD_DIV2;
-            HDMITX_WriteI2C_Byte(REG_TX_CLK_CTRL1, uc);
-            EnableAudioOutput(pclk, AUDFS_48KHz, 2, 24, 0);
-        } else {
-            HDMITX_WriteI2C_Byte(REG_TX_CLK_CTRL1, uc);
-            EnableAudioOutput(pclk, AUDFS_96KHz, 2, 24, 0);
-        }
-
-        uc = HDMITX_ReadI2C_Byte(REG_TX_AUDIO_CTRL3) & ~B_S0RLCHG;
-        if (avc->audio_swap_lr)
-            uc |= B_S0RLCHG;
-        HDMITX_WriteI2C_Byte(REG_TX_AUDIO_CTRL3, uc);
-        // if (avc->tx_mode == TX_HDMI)
-        if (!(IORD_ALTERA_AVALON_PIO_DATA(PIO_1_BASE) & HDMITX_MODE_MASK) && avc->tx_mode == TX_HDMI)
-            HDMITX_SetAudioInfoFrame((BYTE) avc->audio_dw_sampl);
+    if (bAudioEn && tc.tx_mode == TX_HDMI) {
+	alt_u32  pclk = (clkrate[REFCLK_EXT27]/cm.clkcnt)*video_modes[cm.id].h_total;
+        EnableAudioOutputShort4OSSC(pclk,(BYTE) tc.audio_dw_sampl,(BYTE) tc.audio_swap_lr);
+        if (!(IORD_ALTERA_AVALON_PIO_DATA(PIO_1_BASE) & HDMITX_MODE_MASK) && tc.tx_mode == TX_HDMI)
+            HDMITX_SetAudioInfoFrame((BYTE) tc.audio_dw_sampl);
     }
 }
 
 void TX_enable(tx_mode_t mode)
 {
-    //SetAVMute(TRUE);
+    // shut down TX before setting new config
+    SetAVMute(TRUE);
     DisableVideoOutput();
     EnableAVIInfoFrame(FALSE, NULL);
 
+    // re-setup
     EnableVideoOutput(PCLK_MEDIUM, COLOR_RGB444, COLOR_RGB444, mode == TX_HDMI);
+    //TODO: set correct VID based on mode
     if (!(IORD_ALTERA_AVALON_PIO_DATA(PIO_1_BASE) & HDMITX_MODE_MASK) && mode == TX_HDMI)
         HDMITX_SetAVIInfoFrame(HDMI_480p60, F_MODE_RGB444, 0, 0);
 
@@ -126,11 +110,10 @@ void TX_enable(tx_mode_t mode)
     SetAVMute(FALSE);
 }
 
-
 void set_lpf(alt_u8 lpf)
 {
     alt_u32 pclk;
-    pclk = (clkrate[cm.refclk]/cm.clkcnt)*video_modes[cm.id].h_total;
+    pclk = (clkrate[REFCLK_EXT27]/cm.clkcnt)*video_modes[cm.id].h_total;
     printf("PCLK: %uHz\n", pclk);
 
     //Auto
@@ -162,8 +145,15 @@ void set_lpf(alt_u8 lpf)
     }
 }
 
+inline int check_linecnt(alt_u8 progressive, alt_u32 totlines) {
+    if (progressive)
+        return (totlines > MIN_LINES_PROGRESSIVE);
+    else
+        return (totlines > MIN_LINES_INTERLACED);
+}
+
 // Check if input video status / target configuration has changed
-status_t get_status(tvp_input_t input)
+status_t get_status(tvp_input_t input, video_format format)
 {
     alt_u32 data1, data2;
     alt_u32 totlines, clkcnt;
@@ -175,6 +165,7 @@ status_t get_status(tvp_input_t input)
     status_t status;
     static alt_u8 act_ctr;
     alt_u32 ctr;
+    int valid_linecnt;
 
     status = NO_CHANGE;
 
@@ -186,28 +177,8 @@ status_t get_status(tvp_input_t input)
         }
     }
 
-    sync_active = tvp_check_sync(input);
+    sync_active = tvp_check_sync(input, format);
     vsyncmode = IORD_ALTERA_AVALON_PIO_DATA(PIO_4_BASE) >> 16;
-
-    // TVP7002 may randomly report "no sync" (especially with arcade boards),
-    // thus disable output only after N consecutive "no sync"-events
-    if (!cm.sync_active && sync_active) {
-        cm.sync_active = sync_active;
-        status = ACTIVITY_CHANGE;
-        act_ctr = 0;
-    } else if (cm.sync_active && !sync_active) {
-        printf("Sync down in %u...\n", SYNC_LOSS_THOLD-act_ctr);
-        if (act_ctr >= SYNC_LOSS_THOLD) {
-            act_ctr = 0;
-            cm.sync_active = sync_active;
-            status = ACTIVITY_CHANGE;
-        } else {
-            act_ctr++;
-        }
-    } else {
-        act_ctr = 0;
-    }
-
 
     data1 = tvp_readreg(TVP_LINECNT1);
     data2 = tvp_readreg(TVP_LINECNT2);
@@ -225,11 +196,32 @@ status_t get_status(tvp_input_t input)
         totlines = fpga_totlines; //ugly hack
     }
 
+    valid_linecnt = check_linecnt(progressive, totlines);
+
+    // TVP7002 may randomly report "no sync" (especially with arcade boards),
+    // thus disable output only after N consecutive "no sync"-events
+    if (!cm.sync_active && sync_active && valid_linecnt) {
+        cm.sync_active = sync_active;
+        status = ACTIVITY_CHANGE;
+        act_ctr = 0;
+    } else if (cm.sync_active && (!sync_active || !valid_linecnt)) {
+        printf("Sync down in %u...\n", SYNC_LOSS_THOLD-act_ctr);
+        if (act_ctr >= SYNC_LOSS_THOLD) {
+            act_ctr = 0;
+            cm.sync_active = sync_active;
+            status = ACTIVITY_CHANGE;
+        } else {
+            act_ctr++;
+        }
+    } else {
+        act_ctr = 0;
+    }
+
     data1 = tvp_readreg(TVP_CLKCNT1);
     data2 = tvp_readreg(TVP_CLKCNT2);
     clkcnt = ((data2 & 0x0f) << 8) | data1;
 
-    if ((progressive && (totlines > MIN_LINES_PROGRESSIVE)) || (!progressive && (totlines > MIN_LINES_INTERLACED))) {
+    if (valid_linecnt) {
         if ((abs((alt_16)totlines - (alt_16)cm.totlines) > LINECNT_THOLD) || (clkcnt != cm.clkcnt) || (progressive != cm.progressive)) {
             printf("totlines: %u (cur) / %u (prev), clkcnt: %u (cur) / %u (prev). Data1: 0x%.2x, Data2: 0x%.2x\n", (unsigned)totlines, (unsigned)cm.totlines, (unsigned)clkcnt, (unsigned)cm.clkcnt, (unsigned)data1, (unsigned)data2);
             stable_frames = 0;
@@ -239,16 +231,11 @@ status_t get_status(tvp_input_t input)
                 status = (status < MODE_CHANGE) ? MODE_CHANGE : status;
         }
 
-        
-        if ((tc.linemult_target != cm.cc.linemult_target) ||
-	    (tc.l3_mode != cm.cc.l3_mode) ||
-	    ((tc.s480p_mode != cm.cc.s480p_mode) && (video_modes[cm.id].flags & (MODE_DTV480P|MODE_VGA480P))))
+        if ((tc.linemult_target != cm.cc.linemult_target) || (tc.l3_mode != cm.cc.l3_mode))
             status = (status < MODE_CHANGE) ? MODE_CHANGE : status;
 
-
-        if (tc.disable_alc != cm.cc.disable_alc)
-            tvp_set_alc(tc.disable_alc, target_type);
-
+        if ((tc.s480p_mode != cm.cc.s480p_mode) && (video_modes[cm.id].flags & (MODE_DTV480P|MODE_VGA480P)))
+            status = (status < MODE_CHANGE) ? MODE_CHANGE : status;
 
         cm.totlines = totlines;
         cm.clkcnt = clkcnt;
@@ -265,8 +252,11 @@ status_t get_status(tvp_input_t input)
     if (tc.sampler_phase != cm.cc.sampler_phase)
         tvp_set_hpll_phase(tc.sampler_phase-SAMPLER_PHASE_MIN);
 
-    if (tc.sync_thold != cm.cc.sync_thold)
-        tvp_set_sog_thold(tc.sync_thold-SYNC_THOLD_MIN);
+    if (tc.sync_vth != cm.cc.sync_vth)
+        tvp_set_sog_thold(tc.sync_vth-SYNC_VTH_MIN);
+
+    if (tc.vsync_thold != cm.cc.vsync_thold)
+        tvp_set_ssthold((alt_u8) (tc.vsync_thold + CONV_SINGED_UNSINGED_OFFSET));
 
     if ((tc.pre_coast != cm.cc.pre_coast) || (tc.post_coast != cm.cc.post_coast))
         tvp_set_hpllcoast(tc.pre_coast, tc.post_coast);
@@ -280,10 +270,13 @@ status_t get_status(tvp_input_t input)
     if (tc.sync_lpf != cm.cc.sync_lpf)
         tvp_set_sync_lpf(tc.sync_lpf);
 
+    if (tc.en_alc != cm.cc.en_alc)
+        tvp_set_alc(tc.en_alc, target_type);
+
     if ((tc.audio_dw_sampl != cm.cc.audio_dw_sampl) ||
         (tc.audio_mute != cm.cc.audio_mute) ||
         (tc.audio_swap_lr != cm.cc.audio_swap_lr))
-        SetupAudio(!tc.audio_mute,&tc);
+        SetupAudio(!tc.audio_mute);
 
     // use memcpy instead?
     cm.cc = tc;
@@ -325,8 +318,8 @@ void program_mode()
     stable_frames = STABLE_THOLD;
 
     if ((cm.clkcnt != 0) && (cm.totlines != 0)) { //prevent div by 0
-        h_hz = clkrate[cm.refclk]/cm.clkcnt;
-        v_hz_x100 = cm.progressive ? (100*clkrate[cm.refclk]/cm.clkcnt)/cm.totlines : (2*(100*clkrate[cm.refclk]/cm.clkcnt))/cm.totlines;
+        h_hz = clkrate[REFCLK_EXT27]/cm.clkcnt;
+        v_hz_x100 = cm.progressive ? (100*clkrate[REFCLK_EXT27]/cm.clkcnt)/cm.totlines : (2*(100*clkrate[REFCLK_EXT27]/cm.clkcnt))/cm.totlines;
     } else {
         h_hz = 15700;
         v_hz_x100 = 6000;
@@ -359,7 +352,7 @@ void program_mode()
 
     printf("Mode %s selected\n", video_modes[cm.id].name);
 
-    tvp_source_setup(cm.id, target_type, cm.cc.disable_alc, (cm.progressive ? cm.totlines : cm.totlines/2), v_hz_x100/100, cm.refclk, cm.cc.pre_coast, cm.cc.post_coast);
+    tvp_source_setup(cm.id, target_type, cm.cc.en_alc, (cm.progressive ? cm.totlines : cm.totlines/2), v_hz_x100/100, cm.cc.pre_coast, cm.cc.post_coast, (alt_u8) (cm.cc.vsync_thold + CONV_SINGED_UNSINGED_OFFSET));
     set_lpf(cm.cc.video_lpf);
     set_videoinfo();
 }
@@ -386,14 +379,8 @@ int init_hw()
     // IT6613 officially supports only 100kHz, but 400kHz seems to work
     I2C_init(I2CA_BASE,ALT_CPU_FREQ,400000);
 
-
-    set_default_avconfig();
-    // safe?
-    read_userdata();
-
     /* Initialize the character display */
     lcd_init();
-
 
     if (!ths_init()) {
         printf("Error: could not read from THS7353\n");
@@ -404,7 +391,7 @@ int init_hw()
     chiprev = tvp_readreg(TVP_CHIPREV);
     //printf("chiprev %d\n", chiprev);
 
-    if ( chiprev == 0xff) {
+    if (chiprev == 0xff) {
         printf("Error: could not read from TVP7002\n");
         return -3;
     }
@@ -413,7 +400,7 @@ int init_hw()
 
     chiprev = HDMITX_ReadI2C_Byte(IT_DEVICEID);
 
-    if ( chiprev != 0x13) {
+    if (chiprev != 0x13) {
         printf("Error: could not read from IT6613\n");
         return -4;
     }
@@ -425,22 +412,26 @@ int init_hw()
         return -1;
     }
 
+    set_default_avconfig();
+
+    // safe?
+    read_userdata();
+
     // enforce DVI mode on non-DIY boards
-/*    if ((IORD_ALTERA_AVALON_PIO_DATA(PIO_1_BASE) & HDMITX_MODE_MASK)) {
-        cm.cc.tx_mode = TX_DVI;
-        tc.tx_mode = TX_DVI;
-    }*/
+//    if ((IORD_ALTERA_AVALON_PIO_DATA(PIO_1_BASE) & HDMITX_MODE_MASK)) {
+//        cm.cc.tx_mode = TX_DVI;
+//        tc.tx_mode = TX_DVI;
+//    }
 
     if (!(IORD_ALTERA_AVALON_PIO_DATA(PIO_1_BASE) & PB1_BIT))
         setup_rc();
 
-    // init always is HDMI mode (fixes yellow screen bug)
+    // init always in HDMI mode (fixes yellow screen bug)
     TX_enable(TX_HDMI);
-    if (cm.cc.tx_mode)
-        TX_enable(cm.cc.tx_mode);
-    SetupAudio(FALSE,NULL);
+    if (tc.tx_mode == TX_DVI)
+        TX_enable(tc.tx_mode);
+    SetupAudio(FALSE);
 
-    SetAVMute(FALSE);
     return 0;
 }
 
@@ -454,7 +445,7 @@ void enable_outputs()
 
     // enable and unmute HDMITX
     // TODO: check pclk
-    TX_enable(cm.cc.tx_mode);
-    SetupAudio(!cm.cc.audio_mute, &cm.cc);
+    TX_enable(tc.tx_mode);
+    SetupAudio(!tc.audio_mute);
 }
 

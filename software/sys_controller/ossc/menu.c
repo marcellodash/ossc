@@ -27,87 +27,25 @@
 #include "controls.h"
 #include "memory.h"
 #include "menu.h"
+#include "menu_list.h"
 #include "cfg.h"
 
 
 typedef enum {
-    NO_ACTION = 0,
-    NEXT_PAGE = 1,
-    PREV_PAGE = 2,
-    VAL_PLUS  = 3,
-    VAL_MINUS = 4,
-} menucode_id;
+    NO_ACTION    = 0,
+    OPT_SELECT   = 1, // remote_code == rc_keymap[RC_OK]
+    EXIT_SUBMENU = 2, // remote_code == rc_keymap[RC_BACK]
+    PREV_PAGE    = 3, // remote_code == rc_keymap[RC_UP]
+    NEXT_PAGE    = 4, // remote_code == rc_keymap[RC_DOWN]
+    VAL_MINUS    = 5, // remote_code == rc_keymap[RC_LEFT]
+    VAL_PLUS     = 6, // remote_code == rc_keymap[RC_RIGHT]
+} menucode_id; // order must the same as in corresponding rc_code_t (controls.h) part
 
+volatile alt_u8 show_submenu = 0;
+mainmenu_t *current_mainmanu = &videoproc_mm;
+menuitem_t *current_menuitem = &video_lpf_m;
 
-typedef enum {
-    SCANLINE_MODE,
-    SCANLINE_STRENGTH,
-    SCANLINE_ID,
-    H_MASK,
-    V_MASK,
-    SAMPLER_480P,
-    SAMPLER_PHASE,
-    YPBPR_COLORSPACE,
-    SYNC_THOLD,
-    PRE_COAST,
-    POST_COAST,
-    SYNC_LPF,
-    VIDEO_LPF,
-    DISABLE_ALC,
-    LINETRIPLE_ENABLE,
-    LINETRIPLE_MODE,
-    AUD_DW_SAMPLING,
-    AUD_SWAP_LR,
-    AUD_MUTE,
-    TX_MODE,
-#ifndef DEBUG
-    FW_UPDATE,
-#endif
-    SAVE_CONFIG
-} menuitem_id;
-
-typedef struct {
-    const menuitem_id  id;
-    const char        *desc;
-} menuitem_t;
-
-const menuitem_t menu[] = {
-    { SCANLINE_MODE,     "Scanlines" },
-    { SCANLINE_STRENGTH, "Scanline str." },
-    { SCANLINE_ID,       "Scanline id" },
-    { H_MASK,            "Horizontal mask" },
-    { V_MASK,            "Vertical mask" },
-    { SAMPLER_480P,      "480p in sampler" },
-    { SAMPLER_PHASE,     "Sampling phase" },
-    { YPBPR_COLORSPACE,  "YPbPr in ColSpa" },
-    { SYNC_THOLD,        "Analog sync thld" },
-    { PRE_COAST,         "H-PLL Pre-Coast" },
-    { POST_COAST,        "H-PLL Post-Coast" },
-    { SYNC_LPF,          "Analog sync LPF" },
-    { VIDEO_LPF,         "Video LPF" },
-    { DISABLE_ALC,       "Auto Lev. Contr." },
-    { LINETRIPLE_ENABLE, "240p/288p lineX3" },
-    { LINETRIPLE_MODE,   "Linetriple mode" },
-    { AUD_DW_SAMPLING,   "Audio Downsampl." },
-    { AUD_SWAP_LR,       "Audio swap L/R" },
-    { AUD_MUTE,          "Mute Audio" },
-    { TX_MODE,           "TX mode" },
-#ifndef DEBUG
-    { FW_UPDATE,         "Firmware update" },
-#endif
-    { SAVE_CONFIG,       "Save settings" },
-};
-
-#define MENUITEMS (sizeof(menu)/sizeof(menuitem_t))
-
-const char const *l3_mode_desc[] = { "Generic 16:9", "Generic 4:3", "320x240 optim.", "256x240 optim." };
-const char const *s480p_desc[] = { "Auto", "DTV 480p", "VGA 640x480" };
-const char const *sl_mode_desc[] = { "Off", "Horizontal", "Vertical" };
-const char const *sync_lpf_desc[] = { "Off", "33MHz", "10MHz", "2.5MHz" };
-const char const *video_lpf_desc[] = { "Auto", "Off", "95MHz (HDTV II)", "35MHz (HDTV I)", "16MHz (EDTV)", "9MHz (SDTV)" };
-
-
-extern char row1[LCD_ROW_LEN+1], row2[LCD_ROW_LEN+1], menu_row1[LCD_ROW_LEN+1], menu_row2[LCD_ROW_LEN+1];
+extern char menu_row1[LCD_ROW_LEN+1], menu_row2[LCD_ROW_LEN+1];
 
 extern alt_u16 rc_keymap[REMOTE_MAX_KEYS];
 extern volatile alt_u32 remote_code;
@@ -121,11 +59,16 @@ extern avconfig_t tc;
 
 void display_menu(alt_u8 forcedisp)
 {
-    menucode_id code;
-    int retval;
-    static alt_u8 menu_page;
+    menucode_id code = NO_ACTION;
+    int retval, i;
 
-    if (remote_code == rc_keymap[RC_UP])
+    for (i = RC_OK; i < RC_INFO; i++) {
+	if (remote_code == rc_keymap[i]) {
+            code = i - RC_MENU;
+            break;
+	}
+    }
+/*    if (remote_code == rc_keymap[RC_UP])
         code = PREV_PAGE;
     else if (remote_code == rc_keymap[RC_DOWN])
         code = NEXT_PAGE;
@@ -133,180 +76,98 @@ void display_menu(alt_u8 forcedisp)
         code = VAL_PLUS;
     else if (remote_code == rc_keymap[RC_LEFT])
         code = VAL_MINUS;
+    else if (remote_code == rc_keymap[RC_OK])
+        code = OPT_SELECT;
+    else if (remote_code == rc_keymap[RC_BACK])
+        code = EXIT_SUBMENU;
     else
-        code = NO_ACTION;
+        code = NO_ACTION;*/
 
     if (!forcedisp && (code == NO_ACTION))
         return;
-
-    if (code == PREV_PAGE)
-        menu_page = (menu_page+MENUITEMS-1) % MENUITEMS;
-    else if (code == NEXT_PAGE)
-        menu_page = (menu_page+1) % MENUITEMS;
-
-    strncpy(menu_row1, menu[menu_page].desc, LCD_ROW_LEN+1);
-
-    switch (menu[menu_page].id) {
-    case SCANLINE_MODE:
-        if (code == VAL_MINUS)
-            tc.sl_mode = tc.sl_mode ? tc.sl_mode-1 : SL_MODE_MAX;
-        else if (code == VAL_PLUS)
-            tc.sl_mode = tc.sl_mode < SL_MODE_MAX ? tc.sl_mode+1 : 0;
-        strncpy(menu_row2, sl_mode_desc[tc.sl_mode], LCD_ROW_LEN+1);
-        break;
-    case SCANLINE_STRENGTH:
-        if (code == VAL_MINUS)
-        	tc.sl_str = tc.sl_str ? tc.sl_str-1 : SCANLINESTR_MAX;
-        else if (code == VAL_PLUS)
-        	tc.sl_str = tc.sl_str < SCANLINESTR_MAX ? tc.sl_str+1 : 0;
-        sniprintf(menu_row2, LCD_ROW_LEN+1, "%u%%", ((tc.sl_str+1)*625)/100);
-        break;
-    case SCANLINE_ID:
-        if ((code == VAL_MINUS) || (code == VAL_PLUS))
-            tc.sl_id = !tc.sl_id;
-        sniprintf(menu_row2, LCD_ROW_LEN+1, tc.sl_id ? "Odd" : "Even");
-        break;
-    case H_MASK:
-    	if ((code == VAL_MINUS) && (tc.h_mask > 0))
-            tc.h_mask--;
-        else if ((code == VAL_PLUS) && (tc.h_mask < HV_MASK_MAX))
-            tc.h_mask++;
-        sniprintf(menu_row2, LCD_ROW_LEN+1, "%u pixels", tc.h_mask);
-        break;
-    case V_MASK:
-        if ((code == VAL_MINUS) && (tc.v_mask > 0))
-            tc.v_mask--;
-        else if ((code == VAL_PLUS) && (tc.v_mask < HV_MASK_MAX))
-            tc.v_mask++;
-        sniprintf(menu_row2, LCD_ROW_LEN+1, "%u pixels", tc.v_mask);
-        break;
-    case SAMPLER_480P:
-        if (code == VAL_MINUS)
-        	tc.s480p_mode = tc.s480p_mode ? tc.s480p_mode-1 : S480P_MODE_MAX;
-        else if (code == VAL_PLUS)
-        	tc.s480p_mode = tc.s480p_mode < S480P_MODE_MAX ? tc.s480p_mode+1 : 0;
-        strncpy(menu_row2, s480p_desc[tc.s480p_mode], LCD_ROW_LEN+1);
-        break;
-    case SAMPLER_PHASE:
-        if (code == VAL_MINUS)
-        	tc.sampler_phase = tc.sampler_phase > SAMPLER_PHASE_MIN ? tc.sampler_phase-1 : SAMPLER_PHASE_MAX;
-        else if (code == VAL_PLUS)
-        	tc.sampler_phase = tc.sampler_phase < SAMPLER_PHASE_MAX ? tc.sampler_phase+1 : SAMPLER_PHASE_MIN;
-        sniprintf(menu_row2, LCD_ROW_LEN+1, "%d deg", ((tc.sampler_phase-SAMPLER_PHASE_MIN)*1125)/100);
-        break;
-    case YPBPR_COLORSPACE:
-        if ((code == VAL_MINUS) || (code == VAL_PLUS))
-            tc.ypbpr_cs = !tc.ypbpr_cs;
-        strncpy(menu_row2, csc_coeffs[tc.ypbpr_cs].name, LCD_ROW_LEN+1);
-        break;
-    case SYNC_THOLD:
-        if (code == VAL_MINUS)
-        	tc.sync_thold = tc.sync_thold > SYNC_THOLD_MIN ? tc.sync_thold-1 : SYNC_THOLD_MAX;
-        else if (code == VAL_PLUS)
-        	tc.sync_thold = tc.sync_thold < SYNC_THOLD_MAX ? tc.sync_thold+1 : SYNC_THOLD_MIN;
-        sniprintf(menu_row2, LCD_ROW_LEN+1, "%d mV", ((tc.sync_thold-SYNC_THOLD_MIN)*1127)/100);
-        break;
-    case PRE_COAST:
-        if (code == VAL_MINUS)
-            tc.pre_coast = tc.pre_coast > PLL_COAST_MIN ? tc.pre_coast-1 : PLL_COAST_MAX;
-        else if (code == VAL_PLUS)
-            tc.pre_coast = tc.pre_coast < PLL_COAST_MAX ? tc.pre_coast+1 : PLL_COAST_MIN;
-        sniprintf(menu_row2, LCD_ROW_LEN+1, "%u lines", tc.pre_coast);
-        break;
-    case POST_COAST:
-        if (code == VAL_MINUS)
-            tc.post_coast = tc.post_coast > PLL_COAST_MIN ? tc.post_coast-1 : PLL_COAST_MAX;
-        else if (code == VAL_PLUS)
-            tc.post_coast = tc.post_coast < PLL_COAST_MAX ? tc.post_coast+1 : PLL_COAST_MIN;
-        sniprintf(menu_row2, LCD_ROW_LEN+1, "%u lines", tc.post_coast);
-        break;
-    case SYNC_LPF:
-        if (code == VAL_MINUS)
-        	tc.sync_lpf = tc.sync_lpf ? tc.sync_lpf-1 : SYNC_LPF_MAX;
-        else if (code == VAL_PLUS)
-        	tc.sync_lpf = tc.sync_lpf < SYNC_LPF_MAX ? tc.sync_lpf+1 : 0;
-        strncpy(menu_row2, sync_lpf_desc[tc.sync_lpf], LCD_ROW_LEN+1);
-        break;
-    case VIDEO_LPF:
-        if (code == VAL_MINUS)
-        	tc.video_lpf = tc.video_lpf ? tc.video_lpf-1 : VIDEO_LPF_MAX;
-        else if (code == VAL_PLUS)
-        	tc.video_lpf = tc.video_lpf < VIDEO_LPF_MAX ? tc.video_lpf+1 : 0;
-        strncpy(menu_row2, video_lpf_desc[tc.video_lpf], LCD_ROW_LEN+1);
-        break;
-    case DISABLE_ALC:
-        if ((code == VAL_MINUS) || (code == VAL_PLUS))
-            tc.disable_alc = !tc.disable_alc;
-        sniprintf(menu_row2, LCD_ROW_LEN+1, tc.disable_alc ? "Disabled" : "Enabled");
-        break;
-    case LINETRIPLE_ENABLE:
-        if ((code == VAL_MINUS) || (code == VAL_PLUS))
-            tc.linemult_target = !tc.linemult_target;
-        sniprintf(menu_row2, LCD_ROW_LEN+1, tc.linemult_target ? "On" : "Off");
-        break;
-    case LINETRIPLE_MODE:
-        if (code == VAL_MINUS)
-        	tc.l3_mode = tc.l3_mode ? tc.l3_mode-1 : L3_MODE_MAX;
-        else if (code == VAL_PLUS)
-        	tc.l3_mode = tc.l3_mode < L3_MODE_MAX ? tc.l3_mode+1 : 0;
-        strncpy(menu_row2, l3_mode_desc[tc.l3_mode], LCD_ROW_LEN+1);
-        break;
-    case AUD_DW_SAMPLING:
-        if ((code == VAL_MINUS) || (code == VAL_PLUS))
-            tc.audio_dw_sampl = !tc.audio_dw_sampl;
-        sniprintf(menu_row2, LCD_ROW_LEN+1, tc.audio_dw_sampl ? "2x  (fs = 48kHz)" : "Off (fs = 96kHz)");
-        break;
-    case AUD_SWAP_LR:
-        if ((code == VAL_MINUS) || (code == VAL_PLUS))
-            tc.audio_swap_lr = !tc.audio_swap_lr;
-        sniprintf(menu_row2, LCD_ROW_LEN+1, tc.audio_swap_lr ? "On" : "Off");
-        break;
-    case AUD_MUTE:
-        if ((code == VAL_MINUS) || (code == VAL_PLUS))
-            tc.audio_mute = !tc.audio_mute;
-        sniprintf(menu_row2, LCD_ROW_LEN+1, tc.audio_mute ? "On" : "Off");
-        break;
-    case TX_MODE:
-//        if (!(IORD_ALTERA_AVALON_PIO_DATA(PIO_1_BASE) & HDMITX_MODE_MASK) && ((code == VAL_MINUS) || (code == VAL_PLUS))) {
-        if ((code == VAL_MINUS) || (code == VAL_PLUS)) {
-            tc.tx_mode = !tc.tx_mode;
-            TX_enable(tc.tx_mode);
-            SetupAudio(!tc.audio_mute,&tc);
-        }
-        sniprintf(menu_row2, LCD_ROW_LEN+1, tc.tx_mode ? "DVI" : "HDMI");
-        break;
-#ifndef DEBUG
-    case FW_UPDATE:
-        if ((code == VAL_MINUS) || (code == VAL_PLUS)) {
-            retval = fw_update();
-            if (retval == 0) {
-                sniprintf(menu_row1, LCD_ROW_LEN+1, "Fw update OK");
-                sniprintf(menu_row2, LCD_ROW_LEN+1, "Please restart");
-            } else {
-                sniprintf(menu_row1, LCD_ROW_LEN+1, "FW not");
-                sniprintf(menu_row2, LCD_ROW_LEN+1, "updated");
-            }
+    
+    if (show_submenu) {
+        if (code == EXIT_SUBMENU) {
+            show_submenu = FALSE;
+            strncpy(menu_row1, current_mainmanu->desc, LCD_ROW_LEN+1);
+            sniprintf(menu_row2, LCD_ROW_LEN+1,  " "); // current_mainmenu must have a submenu here
         } else {
-            sniprintf(menu_row2, LCD_ROW_LEN+1,  "press <- or ->");
+            alt_8 tmp_val = *current_menuitem->effected_avconfig;
+            if (code == PREV_PAGE)
+                current_menuitem = current_menuitem->previous;
+            else if (code == NEXT_PAGE)
+                current_menuitem = current_menuitem->next;
+            else if (code == VAL_MINUS)
+                *current_menuitem->effected_avconfig = tmp_val > current_menuitem->min_value ? tmp_val-1 : current_menuitem->wraparound ? current_menuitem->max_value : tmp_val;
+            else if (code == VAL_PLUS)
+                *current_menuitem->effected_avconfig = tmp_val < current_menuitem->max_value ? tmp_val+1 : current_menuitem->wraparound ? current_menuitem->min_value : tmp_val;
+
+            if ((current_menuitem->id == TX_MODE) && ((code == VAL_MINUS) || (code == VAL_PLUS))) {
+//            if ((current_menuitem->id == TX_MODE) && (!(IORD_ALTERA_AVALON_PIO_DATA(PIO_1_BASE) & HDMITX_MODE_MASK) && ((code == VAL_MINUS) || (code == VAL_PLUS)))) {
+//                *current_menuitem->id = TX_DVI; // force stay in DVI mode
+                TX_enable(tc.tx_mode);
+                SetupAudio(!tc.audio_mute);
+            }
+            
+            strncpy(menu_row1, current_menuitem->desc, LCD_ROW_LEN+1);
+            current_menuitem->disp_value_func(*current_menuitem->effected_avconfig);
         }
-        break;
-#endif
-    case SAVE_CONFIG:
-        if ((code == VAL_MINUS) || (code == VAL_PLUS)) {
-            retval = write_userdata();
-            if (retval == 0) {
+    } else {
+        if (code == PREV_PAGE)
+            current_mainmanu = current_mainmanu->previous;
+        else if (code == NEXT_PAGE)
+            current_mainmanu = current_mainmanu->next;
+        
+        strncpy(menu_row1, current_mainmanu->desc, LCD_ROW_LEN+1);
+        
+        switch (current_mainmanu->id) {
+        #ifndef DEBUG
+            case FW_UPDATE:
+                if (code == OPT_SELECT) {
+                    retval = fw_update();
+                    if (retval == 0) {
+                        sniprintf(menu_row1, LCD_ROW_LEN+1, "Fw update OK");
+                        sniprintf(menu_row2, LCD_ROW_LEN+1, "Please restart");
+                    } else {
+                        sniprintf(menu_row1, LCD_ROW_LEN+1, "FW not");
+                        sniprintf(menu_row2, LCD_ROW_LEN+1, "updated");
+                    }
+                } else {
+                    sniprintf(menu_row2, LCD_ROW_LEN+1,  " ");
+                }
+                break;
+        #endif
+        case RESET_CONFIG:
+            if (code == OPT_SELECT) {
+                set_default_avconfig();
                 sniprintf(menu_row2, LCD_ROW_LEN+1, "Done");
             } else {
-                sniprintf(menu_row2, LCD_ROW_LEN+1, "error");
+                sniprintf(menu_row2, LCD_ROW_LEN+1,  " ");
             }
-        } else {
-            sniprintf(menu_row2, LCD_ROW_LEN+1,  "press <- or ->");
+        case SAVE_CONFIG:
+            if (code == OPT_SELECT) {
+                retval = write_userdata();
+                if (retval == 0) {
+                    sniprintf(menu_row2, LCD_ROW_LEN+1, "Done");
+                } else {
+                    sniprintf(menu_row2, LCD_ROW_LEN+1, "error");
+                }
+            } else {
+                sniprintf(menu_row2, LCD_ROW_LEN+1,  " ");
+            }
+            break;
+        default:
+            current_menuitem = current_mainmanu->submenu_start;
+            if ((code == OPT_SELECT) || (code == VAL_PLUS)) {
+                show_submenu = TRUE;
+                strncpy(menu_row1, current_menuitem->desc, LCD_ROW_LEN+1);
+                current_menuitem->disp_value_func(*current_menuitem->effected_avconfig);
+            } else
+                sniprintf(menu_row2, LCD_ROW_LEN+1,  " ");
+            break;
         }
-        break;
-    default:
-        sniprintf(menu_row2, LCD_ROW_LEN+1, "MISSING ITEM");
-        break;
     }
+
 
     lcd_write_menu();
 

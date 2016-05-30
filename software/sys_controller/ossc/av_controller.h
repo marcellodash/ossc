@@ -39,34 +39,35 @@ extern char row1[LCD_ROW_LEN+1], row2[LCD_ROW_LEN+1], menu_row1[LCD_ROW_LEN+1], 
 
 // In reverse order of importance
 typedef enum {
-    NO_CHANGE       = 0,
-    INFO_CHANGE     = 1,
-    MODE_CHANGE     = 2,
-    TX_MODE_CHANGE  = 3,
-    ACTIVITY_CHANGE = 4
+    NO_CHANGE           = 0,
+    INFO_CHANGE         = 1,
+    MODE_CHANGE         = 2,
+    TX_MODE_CHANGE      = 3,
+    ACTIVITY_CHANGE     = 4
 } status_t;
 
 typedef enum {
-    AV_KEEP   = 0,
-    AV1_RGBs  = 1,
-    AV1_RGsB  = 2,
-    AV2_YPBPR = 3,
-    AV2_RGsB  = 4,
-    AV3_RGBHV = 5,
-    AV3_RGBs  = 6,
-    AV3_RGsB  = 7
+    AV_KEEP         = 0,
+    AV1_RGBs        = 1,
+    AV1_RGsB        = 2,
+    AV1_YPBPR       = 3,
+    AV2_YPBPR       = 4,
+    AV2_RGsB        = 5,
+    AV3_RGBHV       = 6,
+    AV3_RGBs        = 7,
+    AV3_RGsB        = 8,
+    AV3_YPBPR       = 9
 } avinput_t;
 
 //TODO: transform binary values into flags
 typedef struct {
-    alt_u32   totlines;
-    alt_u32   clkcnt;
-    alt_u8    progressive;
-    alt_u8    macrovis;
-    alt_u8    refclk;
-    alt_8     id;
-    alt_u8    sync_active;
-    alt_u8    linemult;
+    alt_u32 totlines;
+    alt_u32 clkcnt;
+    alt_u8 progressive;
+    alt_u8 macrovis;
+    alt_8 id;
+    alt_u8 sync_active;
+    alt_u8 linemult;
     avinput_t avinput;
     // Current configuration
     avconfig_t cc;
@@ -78,9 +79,9 @@ typedef enum {
 } tx_mode_t;
 
 
-status_t get_status(tvp_input_t input);
+status_t get_status(tvp_input_t input, video_format format);
 
-void SetupAudio(BYTE bAudioEn, avconfig_t *avc);
+void SetupAudio(BYTE bAudioEn);
 void TX_enable(tx_mode_t mode);
 
 void program_mode(void);

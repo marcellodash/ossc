@@ -53,23 +53,6 @@ typedef struct {
     alt_u32 hdr_crc;
 } fw_hdr;
 
-// EPCS16 pagesize is 256 bytes
-// Flash is split 50-50 to FW and userdata, 1MB each
-#define PAGESIZE 256
-#define PAGES_PER_SECTOR 256
-#define USERDATA_OFFSET 0x100000
-#define USERDATA_MAX_SIZE 0x1000    //4KB should be enough
-
-// SD controller uses 512-byte chunks
-#define SD_BUFFER_SIZE 512
-
-int check_flash(void);
-int read_flash(alt_u32 offset, alt_u32 length, alt_u8 *dstbuf);
-int write_flash_page(alt_u8 *pagedata, alt_u32 length, alt_u32 pagenum);
-int verify_flash(alt_u32 offset, alt_u32 length, alt_u32 golden_crc, alt_u8 *tmpbuf);
-
-int read_sd_block(alt_u32 offset, alt_u32 size, alt_u8 *dstbuf);
-int check_sdcard(alt_u8 *databuf);
 
 int check_fw_header(alt_u8 *databuf, fw_hdr *hdr);
 int check_fw_image(alt_u32 offset, alt_u32 size, alt_u32 golden_crc, alt_u8 *tmpbuf);

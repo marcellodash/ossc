@@ -33,10 +33,11 @@
 #include "memory.h"
 #include "controls.h"
 #include "fw_version.h"
+#include "sdcard.h"
+#include "flash.h"
 
 
 extern alt_epcq_controller_dev epcq_controller_0;
-alt_epcq_controller_dev *epcq_controller_dev;
 
 extern char row1[LCD_ROW_LEN+1], row2[LCD_ROW_LEN+1], menu_row1[LCD_ROW_LEN+1], menu_row2[LCD_ROW_LEN+1];
 
@@ -45,135 +46,6 @@ extern alt_u16 rc_keymap[REMOTE_MAX_KEYS];
 // Target configuration
 extern avconfig_t tc;
 
-// Current mode
-extern avmode_t cm;
-
-alt_up_sd_card_dev *sdcard_dev;
-
-int check_flash()
-{
-    epcq_controller_dev = &epcq_controller_0;
-
-    if ((epcq_controller_dev == NULL) || !(epcq_controller_dev->is_epcs && (epcq_controller_dev->page_size == PAGESIZE)))
-        return -1;
-
-    //printf("Flash size in bytes: %d\nSector size: %d (%d pages)\nPage size: %d\n", epcq_controller_dev->size_in_bytes, epcq_controller_dev->sector_size, epcq_controller_dev->sector_size/epcq_controller_dev->page_size, epcq_controller_dev->page_size);
-
-    return 0;
-}
-
-
-
-int read_flash(alt_u32 offset, alt_u32 length, alt_u8 *dstbuf)
-{
-    int retval, i;
-
-    retval = alt_epcq_controller_read(&epcq_controller_dev->dev, offset, dstbuf, length);
-    if (retval != 0)
-        return -1;
-
-    for (i=0; i<length; i++)
-        dstbuf[i] = ALT_CI_NIOS_CUSTOM_INSTR_BITSWAP_0(dstbuf[i]) >> 24;
-
-    return 0;
-}
-
-int write_flash_page(alt_u8 *pagedata, alt_u32 length, alt_u32 pagenum)
-{
-    int retval, i;
-
-    if ((pagenum % PAGES_PER_SECTOR) == 0) {
-        printf("Erasing sector %u\n", (unsigned)(pagenum/PAGES_PER_SECTOR));
-        retval = alt_epcq_controller_erase_block(&epcq_controller_dev->dev, pagenum*PAGESIZE);
-
-        if (retval != 0) {
-            strncpy(menu_row1, "Flash erase", LCD_ROW_LEN+1);
-            sniprintf(menu_row1, LCD_ROW_LEN+1, "error %d", retval);
-            menu_row2[0] = '\0';
-            printf("Flash erase error, sector %u\nRetval %d\n", (unsigned)(pagenum/PAGES_PER_SECTOR), retval);
-            return -200;
-        }
-    }
-
-    // Bit-reverse bytes for flash
-    for (i=0; i<length; i++)
-        pagedata[i] = ALT_CI_NIOS_CUSTOM_INSTR_BITSWAP_0(pagedata[i]) >> 24;
-
-    retval = alt_epcq_controller_write_block(&epcq_controller_dev->dev, (pagenum/PAGES_PER_SECTOR)*PAGES_PER_SECTOR*PAGESIZE, pagenum*PAGESIZE, pagedata, length);
-
-    if (retval != 0) {
-        strncpy(menu_row1, "Flash write", LCD_ROW_LEN+1);
-        strncpy(menu_row2, "error", LCD_ROW_LEN+1);
-        printf("Flash write error, page %u\nRetval %d\n", (unsigned)pagenum, retval);
-        return -201;
-    }
-
-    return retval;
-}
-
-int verify_flash(alt_u32 offset, alt_u32 length, alt_u32 golden_crc, alt_u8 *tmpbuf)
-{
-    alt_u32 crcval=0, i, bytes_to_read;
-    int retval;
-
-    for (i=0; i<length; i=i+PAGESIZE) {
-        bytes_to_read = ((length-i < PAGESIZE) ? (length-i) : PAGESIZE);
-
-        retval = read_flash(i, bytes_to_read, tmpbuf);
-        if (retval != 0)
-            return -202;
-
-        crcval = crcCI(tmpbuf, bytes_to_read, (i==0));
-    }
-
-    if (crcval != golden_crc) {
-        sniprintf(menu_row1, LCD_ROW_LEN+1, "Flash verif fail");
-        menu_row2[0] = '\0';
-        return -203;
-    }
-
-    return 0;
-}
-
-
-int read_sd_block(alt_u32 offset, alt_u32 size, alt_u8 *dstbuf)
-{
-    int i;
-    alt_u32 tmp;
-
-    if ((offset % SD_BUFFER_SIZE) || (size > 512)) {
-        sniprintf(menu_row1, LCD_ROW_LEN+1, "Invalid read cmd");
-        menu_row2[0] = '\0';
-        return -1;
-    }
-
-    if (!Read_Sector_Data((offset/SD_BUFFER_SIZE), 0)) {
-        sniprintf(menu_row1, LCD_ROW_LEN+1, "SD read failure");
-        menu_row2[0] = '\0';
-        return -2;
-    }
-
-    // Copy buffer to SW
-    for (i=0; i<size; i=i+4) {
-        tmp = IORD_32DIRECT(sdcard_dev->base, i);
-        *((alt_u32*)(dstbuf+i)) = tmp;
-    }
-
-    return 0;
-}
-
-int check_sdcard(alt_u8 *databuf)
-{
-    sdcard_dev = alt_up_sd_card_open_dev(ALTERA_UP_SD_CARD_AVALON_INTERFACE_0_NAME);
-
-    if ((sdcard_dev == NULL) || !alt_up_sd_card_is_Present()) {
-        sniprintf(menu_row1, LCD_ROW_LEN+1, "No SD card det.");
-        menu_row2[0] = '\0';
-        return 1;
-    }
-
-    return read_sd_block(0, 512, databuf);
-}
 
 int check_fw_header(alt_u8 *databuf, fw_hdr *hdr)
 {
@@ -240,6 +112,7 @@ int check_fw_image(alt_u32 offset, alt_u32 size, alt_u32 golden_crc, alt_u8 *tmp
 
     return 0;
 }
+
 int fw_update()
 {
     int retval, i;
@@ -421,7 +294,6 @@ int read_userdata()
             break;
         case UDE_AVCONFIG:
             if ((udentry.entry_len-4) == sizeof(avconfig_t)) {
-                memcpy(&cm.cc, databuf+4, sizeof(avconfig_t));
                 memcpy(&tc, databuf+4, sizeof(avconfig_t));
                 printf("Avconfig data read (%u bytes)\n", sizeof(avconfig_t));
             }

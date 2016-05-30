@@ -20,13 +20,20 @@
 #ifndef CONTROL_H_
 #define CONTROL_H_
 
-#define REMOTE_MAX_KEYS 14
 
 typedef enum {
     RC_BTN1 = 0,
     RC_BTN2,
     RC_BTN3,
+    RC_BTN4,
+    RC_BTN5,
+    RC_BTN6,
+    RC_BTN7,
+    RC_BTN8,
+    RC_BTN9,
+    RC_BTN0,
     RC_MENU,
+    RC_OK,
     RC_BACK,
     RC_UP,
     RC_DOWN,
@@ -34,13 +41,14 @@ typedef enum {
     RC_RIGHT,
     RC_INFO,
     RC_LCDBL,
-    RC_HOTKEY1,
-    RC_HOTKEY2,
-    RC_HOTKEY3,
+    RC_SL_TGL,
+    RC_SL_PLUS,
+    RC_SL_MINUS,
 } rc_code_t;
 
+#define REMOTE_MAX_KEYS RC_SL_MINUS-RC_BTN1+1
 
 void setup_rc(void);
-void read_control(void);
+void parse_control(void);
 
 #endif /* CONTROL_H_ */

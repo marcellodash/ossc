@@ -158,6 +158,8 @@ C_SRCS += ossc/av_controller.c
 C_SRCS += ossc/controls.c
 C_SRCS += ossc/menu.c
 C_SRCS += ossc/cfg.c
+C_SRCS += memory/flash.c
+C_SRCS += memory/sdcard.c
 CXX_SRCS :=
 ASM_SRCS :=
 
@@ -200,6 +202,7 @@ APP_INCLUDE_DIRS += tvp7002
 APP_INCLUDE_DIRS += ths7353
 APP_INCLUDE_DIRS += spi_charlcd
 APP_INCLUDE_DIRS += ossc
+APP_INCLUDE_DIRS += memory
 APP_LIBRARY_DIRS :=
 APP_LIBRARY_NAMES :=
 
