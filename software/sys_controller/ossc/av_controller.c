@@ -49,7 +49,7 @@
 #define SYNC_LOSS_THOLD           5
 #define STATUS_TIMEOUT        10000
 
-extern alt_u16 rc_keymap[];
+extern alt_u16 rc_keymap[REMOTE_MAX_KEYS];
 
 const char const *avinput_str[] = { "-", "AV1: RGBS", "AV1: RGsB", "AV1: YPbPr", "AV2: YPbPr", "AV2: RGsB", "AV3: RGBHV", "AV3: RGBS", "AV3: RGsB", "AV3: YPbPr" };
 
