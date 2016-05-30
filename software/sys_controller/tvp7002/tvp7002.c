@@ -38,10 +38,8 @@ ypbpr_to_rgb_csc_t csc_coeffs[] = {
     { "Rec. 709", 0x2000, 0x0000, 0x323E, 0x2000, 0xFA04, 0xF113, 0x2000, 0x3B61, 0x0000 },    // eq. 105
 };
 
-const alt_u8 Kvco[] = {75, 85, 150, 200};
-const char const *Kvco_str[] = { "Ultra low", "Low", "Medium", "High" };
-
-const alt_u32 clkrate[] = {27000000, 6500000}; //in MHz
+static const alt_u8 Kvco[] = {75, 85, 150, 200};
+static const char *Kvco_str[] = { "Ultra low", "Low", "Medium", "High" };
 
 extern mode_data_t video_modes[];
 

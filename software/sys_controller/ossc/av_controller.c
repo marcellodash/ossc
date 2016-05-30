@@ -51,8 +51,6 @@
 
 extern alt_u16 rc_keymap[];
 
-extern const alt_u32 clkrate[];
-
 const char const *avinput_str[] = { "-", "AV1: RGBS", "AV1: RGsB", "AV1: YPbPr", "AV2: YPbPr", "AV2: RGsB", "AV3: RGBHV", "AV3: RGBS", "AV3: RGsB", "AV3: YPbPr" };
 
 // Target configuration
@@ -250,13 +248,13 @@ status_t get_status(tvp_input_t input, video_format format)
         status = (status < INFO_CHANGE) ? INFO_CHANGE : status;
 
     if (tc.sampler_phase != cm.cc.sampler_phase)
-        tvp_set_hpll_phase(tc.sampler_phase-SAMPLER_PHASE_MIN);
+        tvp_set_hpll_phase(tc.sampler_phase);
 
     if (tc.sync_vth != cm.cc.sync_vth)
-        tvp_set_sog_thold(tc.sync_vth-SYNC_VTH_MIN);
+        tvp_set_sog_thold(tc.sync_vth);
 
     if (tc.vsync_thold != cm.cc.vsync_thold)
-        tvp_set_ssthold((alt_u8) (tc.vsync_thold + CONV_SINGED_UNSINGED_OFFSET));
+        tvp_set_ssthold(tc.vsync_thold);
 
     if ((tc.pre_coast != cm.cc.pre_coast) || (tc.post_coast != cm.cc.post_coast))
         tvp_set_hpllcoast(tc.pre_coast, tc.post_coast);
@@ -352,7 +350,7 @@ void program_mode()
 
     printf("Mode %s selected\n", video_modes[cm.id].name);
 
-    tvp_source_setup(cm.id, target_type, cm.cc.en_alc, (cm.progressive ? cm.totlines : cm.totlines/2), v_hz_x100/100, cm.cc.pre_coast, cm.cc.post_coast, (alt_u8) (cm.cc.vsync_thold + CONV_SINGED_UNSINGED_OFFSET));
+    tvp_source_setup(cm.id, target_type, cm.cc.en_alc, (cm.progressive ? cm.totlines : cm.totlines/2), v_hz_x100/100, cm.cc.pre_coast, cm.cc.post_coast, cm.cc.vsync_thold);
     set_lpf(cm.cc.video_lpf);
     set_videoinfo();
 }

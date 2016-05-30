@@ -112,66 +112,6 @@ int main()
         if (target_mode == cm.avinput)
             target_mode = AV_KEEP;
 
-/*
-        switch (target_mode) {
-        case AV1_RGBs:
-            target_input = TVP_INPUT1;
-            target_format = FORMAT_RGBS;
-            target_typemask = VIDEO_LDTV|VIDEO_SDTV|VIDEO_EDTV|VIDEO_HDTV;
-            target_ths = THS_INPUT_B;
-            break;
-        case AV1_RGsB:
-            target_input = TVP_INPUT1;
-            target_format = FORMAT_RGsB;
-            target_typemask = VIDEO_LDTV|VIDEO_SDTV|VIDEO_EDTV|VIDEO_HDTV;
-            target_ths = THS_INPUT_B;
-            break;
-        case AV1_YPBPR:
-            target_input = TVP_INPUT1;
-            target_format = FORMAT_YPbPr;
-            target_typemask = VIDEO_LDTV|VIDEO_SDTV|VIDEO_EDTV|VIDEO_HDTV;
-            target_ths = THS_INPUT_B;
-            break;
-        case AV2_YPBPR:
-            target_input = TVP_INPUT1;
-            target_format = FORMAT_YPbPr;
-            target_typemask = VIDEO_LDTV|VIDEO_SDTV|VIDEO_EDTV|VIDEO_HDTV;
-            target_ths = THS_INPUT_A;
-            break;
-        case AV2_RGsB:
-            target_input = TVP_INPUT1;
-            target_format = FORMAT_RGsB;
-            target_typemask = VIDEO_LDTV|VIDEO_SDTV|VIDEO_EDTV|VIDEO_HDTV;
-            target_ths = THS_INPUT_A;
-            break;
-        case AV3_RGBHV:
-            target_input = TVP_INPUT3;
-            target_format = FORMAT_RGBHV;
-            target_typemask = VIDEO_PC;
-            target_ths = THS_STANDBY;
-            break;
-        case AV3_RGBs:
-            target_input = TVP_INPUT3;
-            target_format = FORMAT_RGBS;
-            target_typemask = VIDEO_LDTV|VIDEO_SDTV|VIDEO_EDTV|VIDEO_HDTV;
-            target_ths = THS_STANDBY;
-            break;
-        case AV3_RGsB:
-            target_input = TVP_INPUT3;
-            target_format = FORMAT_RGsB;
-            target_typemask = VIDEO_LDTV|VIDEO_SDTV|VIDEO_EDTV|VIDEO_HDTV;
-            target_ths = THS_STANDBY;
-            break;
-        case AV3_YPBPR:
-            target_input = TVP_INPUT3;
-            target_format = FORMAT_YPbPr;
-            target_typemask = VIDEO_LDTV|VIDEO_SDTV|VIDEO_EDTV|VIDEO_HDTV;
-            target_ths = THS_STANDBY;
-            break;
-        default:
-            break;
-        }
-*/
         if (target_mode != AV_KEEP) {
             if (target_input > 5) {
                 target_format = (target_mode == AV3_RGBHV) ? FORMAT_RGBHV : (target_mode == AV3_RGBs) ? FORMAT_RGBS : (target_mode == AV3_RGsB) ? FORMAT_RGsB : FORMAT_YPbPr;
@@ -201,6 +141,12 @@ int main()
             strncpy(row2, "    NO SYNC", LCD_ROW_LEN+1);
             if (!menu_active)
                 lcd_write_status();
+        }
+
+        // Check here to enable regardless of av_init
+        if (tc.tx_mode != cm.cc.tx_mode) {
+            TX_enable(tc.tx_mode);
+            cm.cc.tx_mode = tc.tx_mode;
         }
 
         if (av_init) {

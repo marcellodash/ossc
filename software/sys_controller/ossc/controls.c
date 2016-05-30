@@ -39,7 +39,7 @@ extern char menu_row1[LCD_ROW_LEN+1], menu_row2[LCD_ROW_LEN+1];
 alt_u32 remote_code;
 
 alt_u8 menu_active = 0;
-extern alt_u8 show_submenu;
+// extern alt_u8 show_submenu;
 
 extern volatile avconfig_t tc;
 extern volatile avmode_t cm;
@@ -121,16 +121,16 @@ void parse_control()
         if (menu_active) {
             display_menu(1);
         } else {
-            show_submenu = 0;
+//            show_submenu = 0;
             lcd_write_status();
         }
         break;
-    case RC_BACK:
+/*    case RC_BACK:
         if (show_submenu == 0) {
-          menu_active = 0;
-          lcd_write_status();
+            menu_active = 0;
+            lcd_write_status();
         }
-        break;
+        break;*/
     case RC_INFO:
         sniprintf(menu_row1, LCD_ROW_LEN+1, "VMod: %s", video_modes[cm.id].name);
         //sniprintf(menu_row1, LCD_ROW_LEN+1, "0x%x 0x%x 0x%x", ths_readreg(THS_CH1), ths_readreg(THS_CH2), ths_readreg(THS_CH3));
@@ -142,57 +142,10 @@ void parse_control()
     case RC_LCDBL: IOWR_ALTERA_AVALON_PIO_DATA(PIO_0_BASE, (IORD_ALTERA_AVALON_PIO_DATA(PIO_0_BASE) ^ (1<<1))); break;
     case RC_SL_TGL: tc.sl_mode = tc.sl_mode < SL_MODE_MAX ? tc.sl_mode + 1 : 0; break;
     case RC_SL_MINUS: tc.sl_str = tc.sl_str ? tc.sl_mode - 1 : 0; break;
-    case RC_SL_PLUS: tc.sl_str = tc.sl_str < SCANLINESTR_MAX ? tc.sl_mode + 1 : SCANLINESTR_MAX; break;
+    case RC_SL_PLUS: tc.sl_str = tc.sl_str < SCANLINESTR_MAX ? tc.sl_mode + 1 : SL_MODE_MAX; break;
     default: break;
     }
-/*    if (remote_code == rc_keymap[RC_BTN1]) {
-        target_mode = AV1_RGBs;
-    } else if (remote_code == rc_keymap[RC_BTN4]) {
-        target_mode = AV1_RGsB;
-    } else if (remote_code == rc_keymap[RC_BTN7]) {
-        target_mode = AV1_YPBPR;
-    } else if (remote_code == rc_keymap[RC_BTN2]) {
-        target_mode = AV2_YPBPR;
-    } else if (remote_code == rc_keymap[RC_BTN5]) {
-        target_mode = AV2_RGsB;
-    } else if (remote_code == rc_keymap[RC_BTN3]) {
-        target_mode = AV3_RGBHV;
-    } else if (remote_code == rc_keymap[RC_BTN6]) {
-        target_mode = AV3_RGBs;
-    } else if (remote_code == rc_keymap[RC_BTN9]) {
-        target_mode = AV3_RGsB;
-    } else if (remote_code == rc_keymap[RC_BTN0]) {
-        target_mode = AV3_YPBPR;
-    } else if (remote_code == rc_keymap[RC_MENU]) {
-        menu_active = !menu_active;
 
-        if (menu_active) {
-            display_menu(1);
-        } else {
-            show_submenu = 0;
-            lcd_write_status();
-        }
-    } else if (~show_submenu && (remote_code == rc_keymap[RC_BACK])) {
-        menu_active = 0;
-        lcd_write_status();
-    } else if (remote_code == rc_keymap[RC_INFO]) {
-        sniprintf(menu_row1, LCD_ROW_LEN+1, "VMod: %s", video_modes[cm.id].name);
-        //sniprintf(menu_row1, LCD_ROW_LEN+1, "0x%x 0x%x 0x%x", ths_readreg(THS_CH1), ths_readreg(THS_CH2), ths_readreg(THS_CH3));
-        sniprintf(menu_row2, LCD_ROW_LEN+1, "LO: %u VSM: %u", IORD_ALTERA_AVALON_PIO_DATA(PIO_4_BASE) & 0xffff, (IORD_ALTERA_AVALON_PIO_DATA(PIO_4_BASE) >> 16) & 0x3);
-        lcd_write_menu();
-        printf("Mod: %s\n", video_modes[cm.id].name);
-        printf("Lines: %u M: %u\n", IORD_ALTERA_AVALON_PIO_DATA(PIO_4_BASE) & 0xffff, cm.macrovis);
-    } else if (remote_code == rc_keymap[RC_LCDBL]) {
-        IOWR_ALTERA_AVALON_PIO_DATA(PIO_0_BASE, (IORD_ALTERA_AVALON_PIO_DATA(PIO_0_BASE) ^ (1<<1)));
-    } else if (remote_code == rc_keymap[RC_SL_TGL]) {
-        tc.sl_mode = tc.sl_mode < SL_MODE_MAX ? tc.sl_mode + 1 : 0;
-    } else if (remote_code == rc_keymap[RC_SL_MINUS]) {
-        if (tc.sl_str > 0)
-            tc.sl_str--;
-    } else if (remote_code == rc_keymap[RC_SL_PLUS]) {
-        if (tc.sl_str < SCANLINESTR_MAX)
-            tc.sl_str++;
-    }*/
 Button_Check:
     if (btn_code_prev == 0) {
         if (btn_code & PB0_BIT)

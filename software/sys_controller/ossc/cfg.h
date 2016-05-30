@@ -23,49 +23,42 @@
 #include "altera_epcq_controller_mod.h"
 
 typedef struct {
-    alt_8 sl_mode;
-    alt_8 sl_str;
-    alt_8 sl_id;
-    alt_8 linemult_target;
-    alt_8 l3_mode;
-    alt_8 h_mask;
-    alt_8 v_mask;
-    alt_8 tx_mode;
-    alt_8 s480p_mode;
-    alt_8 sampler_phase;
-    alt_8 ypbpr_cs;
-    alt_8 sync_vth;
-    alt_8 vsync_thold;
-    alt_8 sync_lpf;
-    alt_8 video_lpf;
-    alt_8 en_alc;
-    alt_8 pre_coast;
-    alt_8 post_coast;
-    alt_8 audio_dw_sampl;
-    alt_8 audio_swap_lr;
-    alt_8 audio_mute;
+    alt_u8 sl_mode;
+    alt_u8 sl_str;
+    alt_u8 sl_id;
+    alt_u8 linemult_target;
+    alt_u8 l3_mode;
+    alt_u8 h_mask;
+    alt_u8 v_mask;
+    alt_u8 tx_mode;
+    alt_u8 s480p_mode;
+    alt_u8 sampler_phase;
+    alt_u8 ypbpr_cs;
+    alt_u8 sync_vth;
+    alt_u8 vsync_thold;
+    alt_u8 sync_lpf;
+    alt_u8 video_lpf;
+    alt_u8 en_alc;
+    alt_u8 pre_coast;
+    alt_u8 post_coast;
+    alt_u8 audio_dw_sampl;
+    alt_u8 audio_swap_lr;
+    alt_u8 audio_mute;
 } avconfig_t;
 
 #define MAINLOOP_SLEEP_US 10000
 
-#define CONV_SINGED_UNSINGED_OFFSET 127
+#define SCANLINESTR_MAX         15
+#define HV_MASK_MAX             63
+#define SL_MODE_MAX             2
+#define VIDEO_LPF_MAX           5
+#define SAMPLER_PHASE_MAX       31
+#define SYNC_VTH_MAX            31
+#define VSYNC_THOLD_MIN         10
+#define VSYNC_THOLD_MAX         200
+#define PLL_COAST_MAX           5
 
-#define SCANLINESTR_MAX    15
-#define HV_MASK_MAX        63
-#define L3_MODE_MAX         3
-#define S480P_MODE_MAX      2
-#define SL_MODE_MAX         2
-#define SYNC_LPF_MAX        3
-#define VIDEO_LPF_MAX       5
-#define SAMPLER_PHASE_MIN -16
-#define SAMPLER_PHASE_MAX  15
-#define SYNC_VTH_MIN      -11
-#define SYNC_VTH_MAX       20
-#define VSYNC_THOLD_MIN  ( 10 - CONV_SINGED_UNSINGED_OFFSET)
-#define VSYNC_THOLD_MAX  (200 - CONV_SINGED_UNSINGED_OFFSET)
-#define PLL_COAST_MIN       0
-#define PLL_COAST_MAX       5
 
-void set_default_avconfig(void);
+int set_default_avconfig(void);
 
 #endif /* CFG_H_ */
