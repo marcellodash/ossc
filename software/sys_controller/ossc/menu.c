@@ -26,6 +26,9 @@
 #include "av_controller.h"
 #include "memory.h"
 
+#define SATURATE_CFG 0
+#define WRAP_CFG     1
+
 extern char row1[LCD_ROW_LEN+1], row2[LCD_ROW_LEN+1], menu_row1[LCD_ROW_LEN+1], menu_row2[LCD_ROW_LEN+1];
 extern avconfig_t tc;
 extern alt_u32 remote_code;
@@ -53,44 +56,44 @@ static void lines_disp(alt_u8 v) { sniprintf(menu_row2, LCD_ROW_LEN+1, "%u lines
 static void pixels_disp(alt_u8 v) { sniprintf(menu_row2, LCD_ROW_LEN+1, "%u pixels", v); }
 
 MENU(menu_vinputproc, P99_PROTECT({ \
-    { "Video LPF",          OPT_AVCONFIG_SELECTION, { .sel = { &tc.video_lpf, 1, SETTING_ITEM(video_lpf_desc) } } },
-    { "YPbPr in ColSpa",    OPT_AVCONFIG_SELECTION, { .sel = { &tc.ypbpr_cs,  1, SETTING_ITEM(ypbpr_cs_desc) } } },
-    { "Auto lev. ctrl",     OPT_AVCONFIG_SELECTION, { .sel = { &tc.en_alc,    1, SETTING_ITEM(off_on_desc) } } },
+    { "Video LPF",          OPT_AVCONFIG_SELECTION, { .sel = { &tc.video_lpf, WRAP_CFG,     SETTING_ITEM(video_lpf_desc) } } },
+    { "YPbPr in ColSpa",    OPT_AVCONFIG_SELECTION, { .sel = { &tc.ypbpr_cs,  WRAP_CFG,     SETTING_ITEM(ypbpr_cs_desc) } } },
+    { "Auto lev. ctrl",     OPT_AVCONFIG_SELECTION, { .sel = { &tc.en_alc,    WRAP_CFG,     SETTING_ITEM(off_on_desc) } } },
 }))
 
 MENU(menu_sampling, P99_PROTECT({ \
-    { "Sampling phase",     OPT_AVCONFIG_NUMVALUE,  { .num = { &tc.sampler_phase, 0, 0, SAMPLER_PHASE_MAX, sampler_phase_disp } } },
-    { "480p in sampler",    OPT_AVCONFIG_SELECTION, { .sel = { &tc.s480p_mode,    1, SETTING_ITEM(s480p_mode_desc) } } },
+    { "Sampling phase",     OPT_AVCONFIG_NUMVALUE,  { .num = { &tc.sampler_phase, SATURATE_CFG, 0, SAMPLER_PHASE_MAX, sampler_phase_disp } } },
+    { "480p in sampler",    OPT_AVCONFIG_SELECTION, { .sel = { &tc.s480p_mode,    WRAP_CFG,     SETTING_ITEM(s480p_mode_desc) } } },
     //{ "Modeparam editor", OPT_SUBMENU,            { .sub =  NULL } },
 }))
 
 MENU(menu_sync, P99_PROTECT({ \
-    { "Analog sync LPF",    OPT_AVCONFIG_SELECTION, { .sel = { &tc.sync_lpf,    1, SETTING_ITEM(sync_lpf_desc) } } },
-    { "Analog sync Vth",    OPT_AVCONFIG_NUMVALUE,  { .num = { &tc.sync_vth,    0, 0, SYNC_VTH_MAX, sync_vth_disp } } },
-    { "Vsync threshold",    OPT_AVCONFIG_NUMVALUE,  { .num = { &tc.vsync_thold, 0, VSYNC_THOLD_MIN, VSYNC_THOLD_MAX, vsync_thold_disp } } },
-    { "H-PLL Pre-Coast",    OPT_AVCONFIG_NUMVALUE,  { .num = { &tc.pre_coast,   0, 0, PLL_COAST_MAX, lines_disp } } },
-    { "H-PLL Post-Coast",   OPT_AVCONFIG_NUMVALUE,  { .num = { &tc.post_coast,  0, 0, PLL_COAST_MAX, lines_disp } } },
+    { "Analog sync LPF",    OPT_AVCONFIG_SELECTION, { .sel = { &tc.sync_lpf,    WRAP_CFG,     SETTING_ITEM(sync_lpf_desc) } } },
+    { "Analog sync Vth",    OPT_AVCONFIG_NUMVALUE,  { .num = { &tc.sync_vth,    SATURATE_CFG, 0, SYNC_VTH_MAX, sync_vth_disp } } },
+    { "Vsync threshold",    OPT_AVCONFIG_NUMVALUE,  { .num = { &tc.vsync_thold, SATURATE_CFG, VSYNC_THOLD_MIN, VSYNC_THOLD_MAX, vsync_thold_disp } } },
+    { "H-PLL Pre-Coast",    OPT_AVCONFIG_NUMVALUE,  { .num = { &tc.pre_coast,   SATURATE_CFG, 0, PLL_COAST_MAX, lines_disp } } },
+    { "H-PLL Post-Coast",   OPT_AVCONFIG_NUMVALUE,  { .num = { &tc.post_coast,  SATURATE_CFG, 0, PLL_COAST_MAX, lines_disp } } },
 }))
 
 MENU(menu_output, P99_PROTECT({ \
-    { "240p/288p lineX3",   OPT_AVCONFIG_SELECTION, { .sel = { &tc.linemult_target, 1, SETTING_ITEM(off_on_desc) } } },
-    { "Linetriple mode",    OPT_AVCONFIG_SELECTION, { .sel = { &tc.l3_mode,         1, SETTING_ITEM(l3_mode_desc) } } },
-    //{ "Interlace passt.",            OPT_AVCONFIG_SELECTION, { .sel = { &tc.s480p_mode, SETTING_ITEM(s480p_desc) } } },
-    { "TX mode",            OPT_AVCONFIG_SELECTION, { .sel = { &tc.tx_mode,         1, SETTING_ITEM(tx_mode_desc) } } },
+    { "240p/288p lineX3",   OPT_AVCONFIG_SELECTION, { .sel = { &tc.linemult_target, WRAP_CFG, SETTING_ITEM(off_on_desc) } } },
+    { "Linetriple mode",    OPT_AVCONFIG_SELECTION, { .sel = { &tc.l3_mode,         WRAP_CFG, SETTING_ITEM(l3_mode_desc) } } },
+    //{ "Interlace passt.",   OPT_AVCONFIG_SELECTION, { .sel = { &tc.s480p_mode,      WRAP_CFG, SETTING_ITEM(s480p_desc) } } },
+    { "TX mode",            OPT_AVCONFIG_SELECTION, { .sel = { &tc.tx_mode,         WRAP_CFG, SETTING_ITEM(tx_mode_desc) } } },
 }))
 
 MENU(menu_postproc, P99_PROTECT({ \
-    { "Scanlines",          OPT_AVCONFIG_SELECTION, { .sel = { &tc.sl_mode, 1, SETTING_ITEM(sl_mode_desc) } } },
-    { "Scanline str.",      OPT_AVCONFIG_NUMVALUE,  { .num = { &tc.sl_str,  0, 0, SCANLINESTR_MAX, sl_str_disp } } },
-    { "Scanline id.",       OPT_AVCONFIG_SELECTION, { .sel = { &tc.sl_id,   1, SETTING_ITEM(sl_id_desc) } } },
-    { "Horizontal mask",    OPT_AVCONFIG_NUMVALUE,  { .num = { &tc.h_mask,  0, 0, HV_MASK_MAX, pixels_disp } } },
-    { "Vertical mask",      OPT_AVCONFIG_NUMVALUE,  { .num = { &tc.v_mask,  0, 0, HV_MASK_MAX, pixels_disp } } },
+    { "Scanlines",          OPT_AVCONFIG_SELECTION, { .sel = { &tc.sl_mode, WRAP_CFG,     SETTING_ITEM(sl_mode_desc) } } },
+    { "Scanline str.",      OPT_AVCONFIG_NUMVALUE,  { .num = { &tc.sl_str,  SATURATE_CFG, 0, SCANLINESTR_MAX, sl_str_disp } } },
+    { "Scanline id.",       OPT_AVCONFIG_SELECTION, { .sel = { &tc.sl_id,   WRAP_CFG,     SETTING_ITEM(sl_id_desc) } } },
+    { "Horizontal mask",    OPT_AVCONFIG_NUMVALUE,  { .num = { &tc.h_mask,  SATURATE_CFG, 0, HV_MASK_MAX, pixels_disp } } },
+    { "Vertical mask",      OPT_AVCONFIG_NUMVALUE,  { .num = { &tc.v_mask,  SATURATE_CFG, 0, HV_MASK_MAX, pixels_disp } } },
 }))
 
 MENU(menu_audio, P99_PROTECT({ \
-    { "Down-sampling",      OPT_AVCONFIG_SELECTION, { .sel = { &tc.audio_dw_sampl, 1, SETTING_ITEM(audio_dw_sampl_desc) } } },
-    { "Swap left/right",    OPT_AVCONFIG_SELECTION, { .sel = { &tc.audio_swap_lr,  1, SETTING_ITEM(off_on_desc) } } },
-    { "Mute",               OPT_AVCONFIG_SELECTION, { .sel = { &tc.audio_mute,     1, SETTING_ITEM(off_on_desc) } } },
+    { "Down-sampling",      OPT_AVCONFIG_SELECTION, { .sel = { &tc.audio_dw_sampl, WRAP_CFG, SETTING_ITEM(audio_dw_sampl_desc) } } },
+    { "Swap left/right",    OPT_AVCONFIG_SELECTION, { .sel = { &tc.audio_swap_lr,  WRAP_CFG, SETTING_ITEM(off_on_desc) } } },
+    { "Mute",               OPT_AVCONFIG_SELECTION, { .sel = { &tc.audio_mute,     WRAP_CFG, SETTING_ITEM(off_on_desc) } } },
 }))
 
 MENU(menu_main, P99_PROTECT({ \
@@ -166,9 +169,9 @@ void display_menu(alt_u8 forcedisp)
             alt_u8 val_min = navi[navlvl].m->items[navi[navlvl].mp].sel.min;
             alt_u8 val_max = navi[navlvl].m->items[navi[navlvl].mp].sel.max;
             if (code == VAL_MINUS)
-                val = val > val_min ? val-1 : val_wrap == 0 ? val_min : val_max;
+                val = val > val_min ? val-1 : val_wrap == SATURATE_CFG ? val_min : val_max;
             else
-                val = val < val_max ? val+1 : val_wrap == 0 ? val_max : val_min;
+                val = val < val_max ? val+1 : val_wrap == SATURATE_CFG ? val_max : val_min;
 
             *(navi[navlvl].m->items[navi[navlvl].mp].sel.data) = val;
         }
