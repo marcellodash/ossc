@@ -17,44 +17,27 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef CONTROLS_H_
-#define CONTROLS_H_
+#ifndef FIRMWARE_H_
+#define FIRMWARE_H_
 
-#define RC_MASK             0x0000ffff
-#define PB_MASK             0x00030000
-#define PB0_BIT             0x00010000
-#define PB1_BIT             0x00020000
+#include "alt_types.h"
 
-typedef enum {
-    RC_BTN1                 = 0,
-    RC_BTN2,
-    RC_BTN3,
-    RC_BTN4,
-    RC_BTN5,
-    RC_BTN6,
-    RC_BTN7,
-    RC_BTN8,
-    RC_BTN9,
-    RC_BTN0,
-    RC_MENU,
-    RC_OK,
-    RC_BACK,
-    RC_UP,
-    RC_DOWN,
-    RC_LEFT,
-    RC_RIGHT,
-    RC_INFO,
-    RC_LCDBL,
-    RC_SL_MODE,
-    RC_SL_TYPE,
-    RC_SL_PLUS,
-    RC_SL_MINUS,
-    RC_LM_MODE,
-} rc_code_t;
+#define FW_VER_MAJOR            0
+#define FW_VER_MINOR            70
 
-#define REMOTE_MAX_KEYS RC_LM_MODE-RC_BTN1+1
+#define FW_UPDATE_RETRIES       3
 
-void setup_rc();
-void parse_control();
+typedef struct {
+    char fw_key[4];
+    alt_u8 version_major;
+    alt_u8 version_minor;
+    char version_suffix[8];
+    alt_u32 hdr_len;
+    alt_u32 data_len;
+    alt_u32 data_crc;
+    alt_u32 hdr_crc;
+} fw_hdr;
+
+int fw_update();
 
 #endif

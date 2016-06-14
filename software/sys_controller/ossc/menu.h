@@ -17,11 +17,11 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include "alt_types.h"
-#include "controls.h"
-
 #ifndef MENU_H_
 #define MENU_H_
+
+#include "alt_types.h"
+#include "controls.h"
 
 typedef enum {
     OPT_AVCONFIG_SELECTION,
@@ -36,17 +36,17 @@ typedef void (*disp_func)(alt_u8);
 
 typedef struct {
     alt_u8 *data;
-    const alt_u8 wrap_cfg;
-    const alt_u8 min;
-    const alt_u8 max;
+    alt_u8 wrap_cfg;
+    alt_u8 min;
+    alt_u8 max;
     const char **setting_str;
 } opt_avconfig_selection;
 
 typedef struct {
     alt_u8 *data;
-    const alt_u8 wrap_cfg;
-    const alt_u8 min;
-    const alt_u8 max;
+    alt_u8 wrap_cfg;
+    alt_u8 min;
+    alt_u8 max;
     disp_func f;
 } opt_avconfig_numvalue;
 
@@ -81,24 +81,26 @@ typedef struct {
 #define MENU(X, Y) menuitem_t X##_items[] = Y; const menu_t X = { sizeof(X##_items)/sizeof(menuitem_t), X##_items };
 #define P99_PROTECT(...) __VA_ARGS__
 
-#define MAX_MENU_LEVELS 4
-
 typedef enum {
     NO_ACTION    = 0,
-    OPT_SELECT   = RC_OK,    // remote_code == rc_keymap[RC_OK]
-    PREV_MENU    = RC_BACK,  // remote_code == rc_keymap[RC_BACK]
-    PREV_PAGE    = RC_UP,    // remote_code == rc_keymap[RC_UP]
-    NEXT_PAGE    = RC_DOWN,  // remote_code == rc_keymap[RC_DOWN]
-    VAL_MINUS    = RC_LEFT,  // remote_code == rc_keymap[RC_LEFT]
-    VAL_PLUS     = RC_RIGHT, // remote_code == rc_keymap[RC_RIGHT]
-} menucode_id; // order must be consequential (corresponding rc_code_t (controls.h) part)
+    OPT_SELECT   = RC_OK,
+    PREV_MENU    = RC_BACK,
+    PREV_PAGE    = RC_UP,
+    NEXT_PAGE    = RC_DOWN,
+    VAL_MINUS    = RC_LEFT,
+    VAL_PLUS     = RC_RIGHT,
+} menucode_id; // order must be consequential with rc_code_t
 
 typedef struct {
     const menu_t *m;
     alt_u8 mp;
 } menunavi;
 
-
 void display_menu(alt_u8 forcedisp);
+
+//TODO: move all below to separate header(s)
+int write_userdata();
+int fw_update();
+
 
 #endif

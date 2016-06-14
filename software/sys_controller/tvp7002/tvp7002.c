@@ -33,13 +33,10 @@
  *
  * Coefficients from "Colour Space Conversions" (http://www.poynton.com/PDFs/coloureq.pdf).
  */
-ypbpr_to_rgb_csc_t csc_coeffs[] = {
+const ypbpr_to_rgb_csc_t csc_coeffs[] = {
     { "Rec. 601", 0x2000, 0x0000, 0x2CE5, 0x2000, 0xF4FD, 0xE926, 0x2000, 0x38BC, 0x0000 },    // eq. 101
     { "Rec. 709", 0x2000, 0x0000, 0x323E, 0x2000, 0xFA04, 0xF113, 0x2000, 0x3B61, 0x0000 },    // eq. 105
 };
-
-static const alt_u8 Kvco[] = {75, 85, 150, 200};
-static const char *Kvco_str[] = { "Ultra low", "Low", "Medium", "High" };
 
 extern mode_data_t video_modes[];
 
@@ -83,7 +80,7 @@ static void tvp_set_clamp_position(video_type type)
     }
 }
 
-inline alt_u32 tvp_readreg(alt_u32 regaddr)
+alt_u32 tvp_readreg(alt_u32 regaddr)
 {
     I2C_start(I2CA_BASE, TVP_BASE, 0);
     I2C_write(I2CA_BASE, regaddr, 1);   //don't use repeated start as it seems unreliable at 400kHz
@@ -244,7 +241,7 @@ void tvp_sel_clk(alt_u8 refclk)
     }
 }
 
-void tvp_sel_csc(ypbpr_to_rgb_csc_t *csc)
+void tvp_sel_csc(const ypbpr_to_rgb_csc_t *csc)
 {
     tvp_writereg(TVP_CSC1HI, (csc->G_Y >> 8));
     tvp_writereg(TVP_CSC1LO, (csc->G_Y & 0xff));

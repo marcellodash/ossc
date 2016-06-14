@@ -19,33 +19,31 @@
 
 #include <string.h>
 #include "menu.h"
+#include "av_controller.h"
+#include "controls.h"
 #include "lcd.h"
 #include "tvp7002.h"
-#include "controls.h"
-#include "cfg.h"
-#include "av_controller.h"
-#include "memory.h"
 
-#define SATURATE_CFG 0
-#define WRAP_CFG     1
+#define OPT_NOWRAP  0
+#define OPT_WRAP    1
 
 extern char row1[LCD_ROW_LEN+1], row2[LCD_ROW_LEN+1], menu_row1[LCD_ROW_LEN+1], menu_row2[LCD_ROW_LEN+1];
 extern avconfig_t tc;
 extern alt_u32 remote_code;
-extern alt_u8 menu_active;
-
-//TODO: move to separate source file(s)
 extern alt_u16 rc_keymap[REMOTE_MAX_KEYS];
 
-static const char *off_on_desc[] =         { "Off", "On" };
-static const char *video_lpf_desc[] =      { "Auto", "Off", "95MHz (HDTV II)", "35MHz (HDTV I)", "16MHz (EDTV)", "9MHz (SDTV)" };
-static const char *ypbpr_cs_desc[] =       { "Rec. 601", "Rec. 709" };
-static const char *s480p_mode_desc[] =     { "Auto", "DTV 480p", "VGA 640x480" };
-static const char *sync_lpf_desc[] =       { "Off", "33MHz (min)", "10MHz (med)", "2.5MHz (max)" };
-static const char *l3_mode_desc[] =        { "Generic 16:9", "Generic 4:3", "320x240 optim.", "256x240 optim." };
-static const char *tx_mode_desc[] =        { "HDMI", "DVI" };
-static const char *sl_mode_desc[] =        { "Off", "Horizontal", "Vertical" };
-static const char *sl_id_desc[] =          { "Even", "Odd" };
+alt_u8 menu_active;
+
+static const char *off_on_desc[] = { "Off", "On" };
+static const char *video_lpf_desc[] = { "Auto", "Off", "95MHz (HDTV II)", "35MHz (HDTV I)", "16MHz (EDTV)", "9MHz (SDTV)" };
+static const char *ypbpr_cs_desc[] = { "Rec. 601", "Rec. 709" };
+static const char *s480p_mode_desc[] = { "Auto", "DTV 480p", "VGA 640x480" };
+static const char *sync_lpf_desc[] = { "Off", "33MHz (min)", "10MHz (med)", "2.5MHz (max)" };
+static const char *l3_mode_desc[] = { "Generic 16:9", "Generic 4:3", "320x240 optim.", "256x240 optim." };
+static const char *tx_mode_desc[] = { "HDMI", "DVI" };
+static const char *sl_mode_desc[] = { "Off", "Auto", "Manual" };
+static const char *sl_type_desc[] = { "Horizontal", "Vertical" };
+static const char *sl_id_desc[] = { "Even", "Odd" };
 static const char *audio_dw_sampl_desc[] = { "Off (fs = 96kHz)", "2x  (fs = 48kHz)" };
 
 static void sampler_phase_disp(alt_u8 v) { sniprintf(menu_row2, LCD_ROW_LEN+1, "%d deg", (v*1125)/100); }
@@ -56,44 +54,46 @@ static void lines_disp(alt_u8 v) { sniprintf(menu_row2, LCD_ROW_LEN+1, "%u lines
 static void pixels_disp(alt_u8 v) { sniprintf(menu_row2, LCD_ROW_LEN+1, "%u pixels", v); }
 
 MENU(menu_vinputproc, P99_PROTECT({ \
-    { "Video LPF",          OPT_AVCONFIG_SELECTION, { .sel = { &tc.video_lpf, WRAP_CFG,     SETTING_ITEM(video_lpf_desc) } } },
-    { "YPbPr in ColSpa",    OPT_AVCONFIG_SELECTION, { .sel = { &tc.ypbpr_cs,  WRAP_CFG,     SETTING_ITEM(ypbpr_cs_desc) } } },
-    { "Auto lev. ctrl",     OPT_AVCONFIG_SELECTION, { .sel = { &tc.en_alc,    WRAP_CFG,     SETTING_ITEM(off_on_desc) } } },
+    { "Video LPF",          OPT_AVCONFIG_SELECTION, { .sel = { &tc.video_lpf,   OPT_WRAP,   SETTING_ITEM(video_lpf_desc) } } },
+    { "YPbPr in ColSpa",    OPT_AVCONFIG_SELECTION, { .sel = { &tc.ypbpr_cs,    OPT_WRAP,   SETTING_ITEM(ypbpr_cs_desc) } } },
+    { "Auto lev. ctrl",     OPT_AVCONFIG_SELECTION, { .sel = { &tc.en_alc,      OPT_WRAP,   SETTING_ITEM(off_on_desc) } } },
 }))
 
 MENU(menu_sampling, P99_PROTECT({ \
-    { "Sampling phase",     OPT_AVCONFIG_NUMVALUE,  { .num = { &tc.sampler_phase, SATURATE_CFG, 0, SAMPLER_PHASE_MAX, sampler_phase_disp } } },
-    { "480p in sampler",    OPT_AVCONFIG_SELECTION, { .sel = { &tc.s480p_mode,    WRAP_CFG,     SETTING_ITEM(s480p_mode_desc) } } },
+    { "Sampling phase",     OPT_AVCONFIG_NUMVALUE,  { .num = { &tc.sampler_phase, OPT_NOWRAP, 0, SAMPLER_PHASE_MAX, sampler_phase_disp } } },
+    { "480p in sampler",    OPT_AVCONFIG_SELECTION, { .sel = { &tc.s480p_mode,    OPT_WRAP, SETTING_ITEM(s480p_mode_desc) } } },
     //{ "Modeparam editor", OPT_SUBMENU,            { .sub =  NULL } },
 }))
 
 MENU(menu_sync, P99_PROTECT({ \
-    { "Analog sync LPF",    OPT_AVCONFIG_SELECTION, { .sel = { &tc.sync_lpf,    WRAP_CFG,     SETTING_ITEM(sync_lpf_desc) } } },
-    { "Analog sync Vth",    OPT_AVCONFIG_NUMVALUE,  { .num = { &tc.sync_vth,    SATURATE_CFG, 0, SYNC_VTH_MAX, sync_vth_disp } } },
-    { "Vsync threshold",    OPT_AVCONFIG_NUMVALUE,  { .num = { &tc.vsync_thold, SATURATE_CFG, VSYNC_THOLD_MIN, VSYNC_THOLD_MAX, vsync_thold_disp } } },
-    { "H-PLL Pre-Coast",    OPT_AVCONFIG_NUMVALUE,  { .num = { &tc.pre_coast,   SATURATE_CFG, 0, PLL_COAST_MAX, lines_disp } } },
-    { "H-PLL Post-Coast",   OPT_AVCONFIG_NUMVALUE,  { .num = { &tc.post_coast,  SATURATE_CFG, 0, PLL_COAST_MAX, lines_disp } } },
+    { "Analog sync LPF",    OPT_AVCONFIG_SELECTION, { .sel = { &tc.sync_lpf,    OPT_WRAP,   SETTING_ITEM(sync_lpf_desc) } } },
+    { "Analog sync Vth",    OPT_AVCONFIG_NUMVALUE,  { .num = { &tc.sync_vth,    OPT_NOWRAP, 0, SYNC_VTH_MAX, sync_vth_disp } } },
+    { "Vsync threshold",    OPT_AVCONFIG_NUMVALUE,  { .num = { &tc.vsync_thold, OPT_NOWRAP, VSYNC_THOLD_MIN, VSYNC_THOLD_MAX, vsync_thold_disp } } },
+    { "H-PLL Pre-Coast",    OPT_AVCONFIG_NUMVALUE,  { .num = { &tc.pre_coast,   OPT_NOWRAP, 0, PLL_COAST_MAX, lines_disp } } },
+    { "H-PLL Post-Coast",   OPT_AVCONFIG_NUMVALUE,  { .num = { &tc.post_coast,  OPT_NOWRAP, 0, PLL_COAST_MAX, lines_disp } } },
 }))
 
 MENU(menu_output, P99_PROTECT({ \
-    { "240p/288p lineX3",   OPT_AVCONFIG_SELECTION, { .sel = { &tc.linemult_target, WRAP_CFG, SETTING_ITEM(off_on_desc) } } },
-    { "Linetriple mode",    OPT_AVCONFIG_SELECTION, { .sel = { &tc.l3_mode,         WRAP_CFG, SETTING_ITEM(l3_mode_desc) } } },
-    //{ "Interlace passt.",   OPT_AVCONFIG_SELECTION, { .sel = { &tc.s480p_mode,      WRAP_CFG, SETTING_ITEM(s480p_desc) } } },
-    { "TX mode",            OPT_AVCONFIG_SELECTION, { .sel = { &tc.tx_mode,         WRAP_CFG, SETTING_ITEM(tx_mode_desc) } } },
+    { "240p/288p lineX3",   OPT_AVCONFIG_SELECTION, { .sel = { &tc.linemult_target, OPT_WRAP, SETTING_ITEM(off_on_desc) } } },
+    { "Linetriple mode",    OPT_AVCONFIG_SELECTION, { .sel = { &tc.l3_mode,         OPT_WRAP, SETTING_ITEM(l3_mode_desc) } } },
+    //{ "Interlace passt.",            OPT_AVCONFIG_SELECTION, { .sel = { &tc.s480p_mode, SETTING_ITEM(s480p_desc) } } },
+    { "TX mode",            OPT_AVCONFIG_SELECTION, { .sel = { &tc.tx_mode,         OPT_WRAP, SETTING_ITEM(tx_mode_desc) } } },
 }))
 
 MENU(menu_postproc, P99_PROTECT({ \
-    { "Scanlines",          OPT_AVCONFIG_SELECTION, { .sel = { &tc.sl_mode, WRAP_CFG,     SETTING_ITEM(sl_mode_desc) } } },
-    { "Scanline str.",      OPT_AVCONFIG_NUMVALUE,  { .num = { &tc.sl_str,  SATURATE_CFG, 0, SCANLINESTR_MAX, sl_str_disp } } },
-    { "Scanline id.",       OPT_AVCONFIG_SELECTION, { .sel = { &tc.sl_id,   WRAP_CFG,     SETTING_ITEM(sl_id_desc) } } },
-    { "Horizontal mask",    OPT_AVCONFIG_NUMVALUE,  { .num = { &tc.h_mask,  SATURATE_CFG, 0, HV_MASK_MAX, pixels_disp } } },
-    { "Vertical mask",      OPT_AVCONFIG_NUMVALUE,  { .num = { &tc.v_mask,  SATURATE_CFG, 0, HV_MASK_MAX, pixels_disp } } },
+    { "Scanlines",          OPT_AVCONFIG_SELECTION, { .sel = { &tc.sl_mode,     OPT_WRAP,   SETTING_ITEM(sl_mode_desc) } } },
+    { "Scanline str.",      OPT_AVCONFIG_NUMVALUE,  { .num = { &tc.sl_str,      OPT_NOWRAP, 0, SCANLINESTR_MAX, sl_str_disp } } },
+    { "Scanline type",      OPT_AVCONFIG_SELECTION, { .sel = { &tc.sl_type,     OPT_WRAP,   SETTING_ITEM(sl_type_desc) } } },
+    { "Scanline id.",       OPT_AVCONFIG_SELECTION, { .sel = { &tc.sl_id,       OPT_WRAP,   SETTING_ITEM(sl_id_desc) } } },
+    { "Horizontal mask",    OPT_AVCONFIG_NUMVALUE,  { .num = { &tc.h_mask,      OPT_NOWRAP, 0, HV_MASK_MAX, pixels_disp } } },
+    { "Vertical mask",      OPT_AVCONFIG_NUMVALUE,  { .num = { &tc.v_mask,      OPT_NOWRAP, 0, HV_MASK_MAX, pixels_disp } } },
 }))
 
 MENU(menu_audio, P99_PROTECT({ \
-    { "Down-sampling",      OPT_AVCONFIG_SELECTION, { .sel = { &tc.audio_dw_sampl, WRAP_CFG, SETTING_ITEM(audio_dw_sampl_desc) } } },
-    { "Swap left/right",    OPT_AVCONFIG_SELECTION, { .sel = { &tc.audio_swap_lr,  WRAP_CFG, SETTING_ITEM(off_on_desc) } } },
-    { "Mute",               OPT_AVCONFIG_SELECTION, { .sel = { &tc.audio_mute,     WRAP_CFG, SETTING_ITEM(off_on_desc) } } },
+    { "Down-sampling",      OPT_AVCONFIG_SELECTION, { .sel = { &tc.audio_dw_sampl, OPT_WRAP, SETTING_ITEM(audio_dw_sampl_desc) } } },
+    { "Swap left/right",    OPT_AVCONFIG_SELECTION, { .sel = { &tc.audio_swap_lr,  OPT_WRAP, SETTING_ITEM(off_on_desc) } } },
+    { "Use ext. MCLK",      OPT_AVCONFIG_SELECTION, { .sel = { &tc.audio_src_mclk, OPT_WRAP, SETTING_ITEM(off_on_desc) } } },
+    { "Mute",               OPT_AVCONFIG_SELECTION, { .sel = { &tc.audio_mute,     OPT_WRAP, SETTING_ITEM(off_on_desc) } } },
 }))
 
 MENU(menu_main, P99_PROTECT({ \
@@ -103,7 +103,7 @@ MENU(menu_main, P99_PROTECT({ \
     { "Output opt.    >",   OPT_SUBMENU,            { .sub = &menu_output } }, \
     { "Post-proc.     >",   OPT_SUBMENU,            { .sub = &menu_postproc } }, \
     { "Audio options  >",   OPT_SUBMENU,            { .sub = &menu_audio } }, \
-    { "<  Fw. update  >",   OPT_FUNC_CALL,          { .fun = { fw_update, "OK - pls restart" } } }, \
+    { "Fw. update     >",   OPT_FUNC_CALL,          { .fun = { fw_update, "OK - pls restart" } } }, \
     { "<Reset settings>",   OPT_FUNC_CALL,          { .fun = { set_default_avconfig, "Reset done" } } }, \
     { "<Save settings >",   OPT_FUNC_CALL,          { .fun = { write_userdata, "Saved" } } }, \
 }))
@@ -116,19 +116,22 @@ alt_u8 navlvl = 0;
 void display_menu(alt_u8 forcedisp)
 {
     menucode_id code = NO_ACTION;
-    int retval = 0, i;
+    menuitem_type type;
+    alt_u8 *val, val_wrap, val_min, val_max;
+    int i, retval = 0;
 
-    for (i = RC_OK; i < RC_INFO; i++) {
+    for (i=RC_OK; i < RC_INFO; i++) {
         if (remote_code == rc_keymap[i]) {
-          code = i;
-          break;
+            code = i;
+            break;
         }
     }
 
     if (!forcedisp && (code == NO_ACTION))
         return;
 
-    menuitem_type type = navi[navlvl].m->items[navi[navlvl].mp].type;
+    type = navi[navlvl].m->items[navi[navlvl].mp].type;
+
     // Parse menu control
     switch (code) {
     case PREV_PAGE:
@@ -147,7 +150,7 @@ void display_menu(alt_u8 forcedisp)
         }
         break;
     case OPT_SELECT:
-        switch (type) {
+        switch (navi[navlvl].m->items[navi[navlvl].mp].type) {
             case OPT_SUBMENU:
                 if (navi[navlvl+1].m != navi[navlvl].m->items[navi[navlvl].mp].sub)
                     navi[navlvl+1].mp = 0;
@@ -163,17 +166,16 @@ void display_menu(alt_u8 forcedisp)
         break;
     case VAL_MINUS:
     case VAL_PLUS:
-        if ((type == OPT_AVCONFIG_SELECTION) || (type == OPT_AVCONFIG_NUMVALUE)){
-            alt_u8 val = *(navi[navlvl].m->items[navi[navlvl].mp].sel.data);
-            alt_u8 val_wrap = navi[navlvl].m->items[navi[navlvl].mp].sel.wrap_cfg;
-            alt_u8 val_min = navi[navlvl].m->items[navi[navlvl].mp].sel.min;
-            alt_u8 val_max = navi[navlvl].m->items[navi[navlvl].mp].sel.max;
-            if (code == VAL_MINUS)
-                val = val > val_min ? val-1 : val_wrap == SATURATE_CFG ? val_min : val_max;
-            else
-                val = val < val_max ? val+1 : val_wrap == SATURATE_CFG ? val_max : val_min;
+        if ((type == OPT_AVCONFIG_SELECTION) || (type == OPT_AVCONFIG_NUMVALUE)) {
+            val = navi[navlvl].m->items[navi[navlvl].mp].sel.data;
+            val_wrap = navi[navlvl].m->items[navi[navlvl].mp].sel.wrap_cfg;
+            val_min = navi[navlvl].m->items[navi[navlvl].mp].sel.min;
+            val_max = navi[navlvl].m->items[navi[navlvl].mp].sel.max;
 
-            *(navi[navlvl].m->items[navi[navlvl].mp].sel.data) = val;
+            if (code == VAL_MINUS)
+                *val = (*val > val_min) ? (*val-1) : (val_wrap ? val_max : val_min);
+            else
+                *val = (*val < val_max) ? (*val+1) : (val_wrap ? val_min : val_max);
         }
         break;
     default:
@@ -183,7 +185,7 @@ void display_menu(alt_u8 forcedisp)
     // Generate menu text
     type = navi[navlvl].m->items[navi[navlvl].mp].type;
     strncpy(menu_row1, navi[navlvl].m->items[navi[navlvl].mp].name, LCD_ROW_LEN+1);
-    switch (type) {
+    switch (navi[navlvl].m->items[navi[navlvl].mp].type) {
         case OPT_AVCONFIG_SELECTION:
             strncpy(menu_row2, navi[navlvl].m->items[navi[navlvl].mp].sel.setting_str[*(navi[navlvl].m->items[navi[navlvl].mp].sel.data)], LCD_ROW_LEN+1);
             break;

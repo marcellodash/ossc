@@ -17,44 +17,36 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef CONTROLS_H_
-#define CONTROLS_H_
+#include <string.h>
+#include "system.h"
+#include "altera_avalon_pio_regs.h"
+#include "avconfig.h"
+#include "tvp7002.h"
+#include "av_controller.h"
 
-#define RC_MASK             0x0000ffff
-#define PB_MASK             0x00030000
-#define PB0_BIT             0x00010000
-#define PB1_BIT             0x00020000
+#define DEFAULT_ON             1
+#define DEFAULT_PRE_COAST       1
+#define DEFAULT_POST_COAST      0
+#define DEFAULT_SAMPLER_PHASE   16
+#define DEFAULT_SYNC_VTH        11
 
-typedef enum {
-    RC_BTN1                 = 0,
-    RC_BTN2,
-    RC_BTN3,
-    RC_BTN4,
-    RC_BTN5,
-    RC_BTN6,
-    RC_BTN7,
-    RC_BTN8,
-    RC_BTN9,
-    RC_BTN0,
-    RC_MENU,
-    RC_OK,
-    RC_BACK,
-    RC_UP,
-    RC_DOWN,
-    RC_LEFT,
-    RC_RIGHT,
-    RC_INFO,
-    RC_LCDBL,
-    RC_SL_MODE,
-    RC_SL_TYPE,
-    RC_SL_PLUS,
-    RC_SL_MINUS,
-    RC_LM_MODE,
-} rc_code_t;
+// Target configuration
+avconfig_t tc;
 
-#define REMOTE_MAX_KEYS RC_LM_MODE-RC_BTN1+1
+// Default configuration
+const avconfig_t tc_default = {
+  .sampler_phase = DEFAULT_SAMPLER_PHASE,
+  .sync_vth = DEFAULT_SYNC_VTH,
+  .vsync_thold = DEFAULT_VSYNC_THOLD,
+  .en_alc = 1,
+  .pre_coast = DEFAULT_PRE_COAST,
+  .post_coast = DEFAULT_POST_COAST,
+  .audio_dw_sampl = DEFAULT_ON,
+};
 
-void setup_rc();
-void parse_control();
+int set_default_avconfig()
+{
+    memcpy(&tc, &tc_default, sizeof(avconfig_t));
 
-#endif
+    return 0;
+}
