@@ -84,7 +84,7 @@ void SetupAudio(BYTE bAudioEn)
 
     if (bAudioEn && tc.tx_mode == TX_HDMI) {
 	alt_u32  pclk = (clkrate[REFCLK_EXT27]/cm.clkcnt)*video_modes[cm.id].h_total;
-        EnableAudioOutputShort4OSSC(pclk, tc.audio_src_mclk, tc.audio_dw_sampl, tc.audio_swap_lr);
+        EnableAudioOutputShort4OSSC(pclk, tc.audio_dw_sampl, tc.audio_swap_lr);
         if (!(IORD_ALTERA_AVALON_PIO_DATA(PIO_1_BASE) & HDMITX_MODE_MASK) && tc.tx_mode == TX_HDMI)
             HDMITX_SetAudioInfoFrame((BYTE) tc.audio_dw_sampl);
     }
@@ -144,9 +144,9 @@ void set_lpf(alt_u8 lpf)
 
 inline int check_linecnt(alt_u8 progressive, alt_u32 totlines) {
     if (progressive)
-        return (totlines > MIN_LINES_PROGRESSIVE);
+        return (totlines >= MIN_LINES_PROGRESSIVE);
     else
-        return (totlines > MIN_LINES_INTERLACED);
+        return (totlines >= MIN_LINES_INTERLACED);
 }
 
 // Check if input video status / target configuration has changed
@@ -185,8 +185,8 @@ status_t get_status(tvp_input_t input, video_format format)
 
     fpga_totlines = IORD_ALTERA_AVALON_PIO_DATA(PIO_4_BASE) & 0xffff;
 
-    //TODO: check flags instead
-    if (vsyncmode == 0x2) {
+    // NOTE: "progressive" may not have correct value if H-PLL is not locked (!cm.sync_active)
+    if ((vsyncmode == 0x2) || (!cm.sync_active && (totlines < MIN_LINES_INTERLACED))) {
         progressive = 1;
     } else if ((vsyncmode == 0x1) && fpga_totlines > ((totlines-1)*2)) {
         progressive = 0;
@@ -273,8 +273,7 @@ status_t get_status(tvp_input_t input, video_format format)
 
     if ((tc.audio_dw_sampl != cm.cc.audio_dw_sampl) ||
         (tc.audio_mute != cm.cc.audio_mute) ||
-        (tc.audio_swap_lr != cm.cc.audio_swap_lr) ||
-        (tc.audio_src_mclk != cm.cc.audio_src_mclk))
+        (tc.audio_swap_lr != cm.cc.audio_swap_lr))
         SetupAudio(!tc.audio_mute);
 
     cm.cc = tc;

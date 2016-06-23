@@ -523,7 +523,7 @@ BOOL EnableAudioOutput(ULONG VideoPixelClock,BYTE bAudioSampleFreq,BYTE ChannelN
     return TRUE ;
 }
 
-BOOL EnableAudioOutputShort4OSSC(ULONG VideoPixelClock,BYTE bSrcMCLK, BYTE bAudioDwSampl,BYTE bAudioSwapLR)
+BOOL EnableAudioOutputShort4OSSC(ULONG VideoPixelClock, BYTE bAudioDwSampl,BYTE bAudioSwapLR)
 {
     // set NTSC
     // TODO: proper calculation of N-factor (???)
@@ -546,8 +546,6 @@ BOOL EnableAudioOutputShort4OSSC(ULONG VideoPixelClock,BYTE bSrcMCLK, BYTE bAudi
 
     // define internal MCLK and audio down-sampling
     HDMITX_SetREG_Byte(REG_TX_CLK_CTRL0,~M_EXT_MCLK_SEL,B_EXT_256FS);
-    if (bSrcMCLK = 0x1)
-        HDMITX_OrREG_Byte(REG_TX_CLK_CTRL0,M_EXT_MCLK_SEL);
     HDMITX_AndREG_Byte(REG_TX_SW_RST,~M_AUD_DIV);
     if (bAudioDwSampl == 0x1)
         HDMITX_OrREG_Byte(REG_TX_CLK_CTRL1,B_AUD_DIV2);

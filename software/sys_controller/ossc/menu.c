@@ -20,6 +20,8 @@
 #include <string.h>
 #include "menu.h"
 #include "av_controller.h"
+#include "firmware.h"
+#include "userdata.h"
 #include "controls.h"
 #include "lcd.h"
 #include "tvp7002.h"
@@ -92,7 +94,6 @@ MENU(menu_postproc, P99_PROTECT({ \
 MENU(menu_audio, P99_PROTECT({ \
     { "Down-sampling",      OPT_AVCONFIG_SELECTION, { .sel = { &tc.audio_dw_sampl, OPT_WRAP, SETTING_ITEM(audio_dw_sampl_desc) } } },
     { "Swap left/right",    OPT_AVCONFIG_SELECTION, { .sel = { &tc.audio_swap_lr,  OPT_WRAP, SETTING_ITEM(off_on_desc) } } },
-    { "Use ext. MCLK",      OPT_AVCONFIG_SELECTION, { .sel = { &tc.audio_src_mclk, OPT_WRAP, SETTING_ITEM(off_on_desc) } } },
     { "Mute",               OPT_AVCONFIG_SELECTION, { .sel = { &tc.audio_mute,     OPT_WRAP, SETTING_ITEM(off_on_desc) } } },
 }))
 
@@ -197,7 +198,7 @@ void display_menu(alt_u8 forcedisp)
             break;
         case OPT_FUNC_CALL:
             if (code == OPT_SELECT)
-                sniprintf(menu_row2, LCD_ROW_LEN+1, "%s", (retval==0) ? navi[navlvl].m->items[navi[navlvl].mp].fun.text_success : "Error");
+                sniprintf(menu_row2, LCD_ROW_LEN+1, "%s", (retval==0) ? navi[navlvl].m->items[navi[navlvl].mp].fun.text_success : "failed");
             else
                 menu_row2[0] = 0;
             break;

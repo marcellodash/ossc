@@ -58,8 +58,7 @@ typedef struct {
     alt_u8 audio_dw_sampl;
     alt_u8 audio_swap_lr;
     alt_u8 audio_mute;
-    alt_u8 audio_src_mclk;
-} avconfig_t;
+} __attribute__((packed)) avconfig_t;
 
 int set_default_avconfig();
 
