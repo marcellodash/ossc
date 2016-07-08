@@ -4,7 +4,9 @@ Choose the service you would ever like. I have uploaded the design to OSHPark, t
 VERY IMPORTANT: The substrate thickness has to be as thin as possible.
 The PCB is design to sit between lifted pins of the IT6613 (the HDMI transmitter) and OSSC-PCB. Just look at the installation pictures to get an idea ;)
 I have produced the PCBs with OSHPark and have chosen 0.8mm thickness. The PCB must not be thicker.
-Link to PCB at OSHPark: https://oshpark.com/shared_projects/rmFBAKyo
+Link to PCB at OSHPark:
+- https://oshpark.com/shared_projects/rmFBAKyo (for v1.3)
+- https://oshpark.com/shared_projects/vKUEgBSy (for v1.5)
 
 Part list of the DIY-Audio PCB
 ==============================
