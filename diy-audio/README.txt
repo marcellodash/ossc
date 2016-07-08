@@ -14,7 +14,7 @@ running number ------ footprint(s) --------- device/part --------- package -----
      01         |  U1                 |  PCM1808               |  TSSOP14     |  595-PCM1808PWR
      02         |  U2                 |  74LVC1G34             |  SOT23-5     |  595-SN74LVC1G34DCKR
      03         |  U3                 |  MK2705SLF             |  SOIC8       |  972-MK2705SLF
-     04         |  FB1, FB2           |  Ferrit Beat           |  SMD0603     |  81-BLM18EG601SN1D
+     04         |  FB1, FB2           |  Ferrit Beat           |  SMD0603     |  81-BLM18PG471SN1D
      05         |  C1                 |  tantal-cap. 47uF/16V  |  SMD case C  |  74-293D476X9016C2TE3
      06         |  R11, R12           |  res. >2.2 kOhm        |  SMD0603     |  71-CRCW06034K99FKEAH (e.g. 4.99k)
      07         |  C11, C13, C15      |  tantal-cap. 10uF/6.3V |  SMD case A  |  74-TR3A106M6R3C1500
