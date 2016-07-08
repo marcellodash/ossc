@@ -40,12 +40,14 @@ here is my choice which gives a cut-off frequency of 47.938kHz.
 PCB-Installation
 =================
 (see pictures; assumes that at least the SCART connector has been desoldered)
-01 - bend up pins 9, 10 and 11 of the IT6613
-02 - make a placement check
-03 - cut off the plastic around pin 2, 4 and 6 of the SCART connector
-04 - solder the IT6613 into place (if not done yet) and approximately fix the audio pcb into place
+01 - v1.3 - bend up pins 9, 10 and 11 of the IT6613 (v1.3 only!!!)
+   - v1.5 - cut three wires between each pair of solder joints marked with I2S, WS and SCK (v1.5 only)
+02 - make a placement check (might look different between v1.3 and v1.5)
+03 - cut off the plastic around pin 2, 4 and 6 of the SCART connector if needed
+04 - solder the IT6613 into place (if not done yet) and approximately fix the audio pcb into place (v1.5 does not sit under some pins)
 05 - solder the SCART plug into place and solder the audio PCB onto the SCART connector (remind to check the pin assignment at the IT6613 during soldering the first leg)
-06 - solder pin 9, 10 and 11 of the IT6613 onto the audio PCB
+06 - v1.3 - solder pin 9, 10 and 11 of the IT6613 onto the audio PCB (v1.3 only)
+   - v1.5 - solder the three top solder joints on the OSSC PCB (I2S, WS and SCK) to the DIY audio PCB (v1.5 only)
 07 - connect the wires
 08 - 5V and 3.3V can be get from U5
 09 - 27MHz from the crystal oscillator (pin between U7 and U9)
