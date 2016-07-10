@@ -44,7 +44,7 @@ static const char *sync_lpf_desc[] = { "Off", "33MHz (min)", "10MHz (med)", "2.5
 static const char *l3_mode_desc[] = { "Generic 16:9", "Generic 4:3", "320x240 optim.", "256x240 optim." };
 static const char *tx_mode_desc[] = { "HDMI", "DVI" };
 static const char *sl_mode_desc[] = { "Off", "Auto", "Manual" };
-static const char *sl_type_desc[] = { "Horizontal", "Vertical" };
+static const char *sl_type_desc[] = { "Horizontal", "Vertical", "Alternating" };
 static const char *sl_id_desc[] = { "Even", "Odd" };
 static const char *audio_dw_sampl_desc[] = { "Off (fs = 96kHz)", "2x  (fs = 48kHz)" };
 
@@ -78,7 +78,8 @@ MENU(menu_sync, P99_PROTECT({ \
 MENU(menu_output, P99_PROTECT({ \
     { "240p/288p lineX3",   OPT_AVCONFIG_SELECTION, { .sel = { &tc.linemult_target, OPT_WRAP, SETTING_ITEM(off_on_desc) } } },
     { "Linetriple mode",    OPT_AVCONFIG_SELECTION, { .sel = { &tc.l3_mode,         OPT_WRAP, SETTING_ITEM(l3_mode_desc) } } },
-    //{ "Interlace passt.",            OPT_AVCONFIG_SELECTION, { .sel = { &tc.s480p_mode, SETTING_ITEM(s480p_desc) } } },
+    { "480p/576p lineX2",   OPT_AVCONFIG_SELECTION, { .sel = { &tc.edtv_l2x,        OPT_WRAP, SETTING_ITEM(off_on_desc) } } },
+    { "480i/576i passtr",   OPT_AVCONFIG_SELECTION, { .sel = { &tc.interlace_pt,    OPT_WRAP, SETTING_ITEM(off_on_desc) } } },
     { "TX mode",            OPT_AVCONFIG_SELECTION, { .sel = { &tc.tx_mode,         OPT_WRAP, SETTING_ITEM(tx_mode_desc) } } },
 }))
 
