@@ -482,7 +482,7 @@ int main()
 
     if (init_stat >= 0) {
         printf("### DIY VIDEO DIGITIZER / SCANCONVERTER INIT OK ###\n\n");
-        sniprintf(row1, LCD_ROW_LEN+1, "OSSC  fw. %u.%.2u", FW_VER_MAJOR, FW_VER_MINOR);
+        sniprintf(row1, LCD_ROW_LEN+1, "OSSC  fw. %u.%.2ua", FW_VER_MAJOR, FW_VER_MINOR);
 #ifndef DEBUG
         strncpy(row2, "2014-2016  marqs", LCD_ROW_LEN+1);
 #else
