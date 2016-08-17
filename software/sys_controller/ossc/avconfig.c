@@ -19,7 +19,7 @@
 
 #include <string.h>
 #include "system.h"
-#include "altera_avalon_pio_regs.h"
+// #include "altera_avalon_pio_regs.h"
 #include "avconfig.h"
 #include "av_controller.h"
 #include "altera_avalon_pio_regs.h"
@@ -32,6 +32,9 @@
 #define DEFAULT_SAMPLER_PHASE   16
 #define DEFAULT_SYNC_VTH        11
 
+extern mode_data_t video_modes[], video_modes_def[];
+extern alt_u8 video_mode_cnt;
+
 // Target configuration
 avconfig_t tc;
 
@@ -40,6 +43,7 @@ const avconfig_t tc_default = {
   .sampler_phase = DEFAULT_SAMPLER_PHASE,
   .sync_vth = DEFAULT_SYNC_VTH,
   .vsync_thold = DEFAULT_VSYNC_THOLD,
+  .sd_sync_win = DEFAULT_SD_SYNC_WIN,
   .en_alc = 1,
   .pre_coast = DEFAULT_PRE_COAST,
   .post_coast = DEFAULT_POST_COAST,
@@ -50,6 +54,8 @@ int set_default_avconfig()
 {
     memcpy(&tc, &tc_default, sizeof(avconfig_t));
     tc.tx_mode = !!(IORD_ALTERA_AVALON_PIO_DATA(PIO_1_BASE) & HDMITX_MODE_MASK);
+
+    memcpy(video_modes, video_modes_def, video_mode_cnt*sizeof(mode_data_t));
 
     return 0;
 }

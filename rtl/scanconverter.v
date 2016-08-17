@@ -92,7 +92,7 @@ reg VSYNC_1x, VSYNC_2x, VSYNC_pp1;
 
 reg [11:0] HSYNC_start;
 
-reg FID_prev;
+reg FID_1x, FID_prev;
 
 wire DATA_enable_act;
 reg DATA_enable_pp1;
@@ -120,6 +120,7 @@ reg h_enable_3x, h_enable_3x_h1x, v_enable_3x, v_enable_3x_h1x;
 reg prev_hs, prev_vs;
 reg [11:0] hmax[0:1];
 reg line_idx;
+reg [1:0] line_out_idx_2x, line_out_idx_3x, line_out_idx_3x_h1x;
 
 reg [23:0] warn_h_unstable, warn_pll_lock_lost, warn_pll_lock_lost_3x, warn_pll_lock_lost_3x_lowfreq;
 
@@ -139,7 +140,6 @@ reg [5:0] H_MASK;
 reg [7:0] R_1x, G_1x, B_1x, R_pp1, G_pp1, B_pp1;
 wire [7:0] R_lbuf, G_lbuf, B_lbuf;
 wire [7:0] R_act, G_act, B_act;
-
 
 assign pclk_1x = PCLK_in;
 assign pclk_lock = {pclk_2x_lock, pclk_3x_lock, pclk_3x_lowfreq_lock};
@@ -166,7 +166,7 @@ function [8:0] apply_scanlines;
             apply_scanlines = (data > str) ? (data-str) : 8'h00;
         else if ((mode == `SCANLINES_V) & (actid == pixid))
             apply_scanlines = (data > str) ? (data-str) : 8'h00;
-        else if ((mode == `SCANLINES_ALT) & ((actid[0]^fid) == lineid[0]))
+        else if ((mode == `SCANLINES_ALT) & ({actid[1], actid[0]^fid} == lineid))
             apply_scanlines = (data > str) ? (data-str) : 8'h00;
         else
             apply_scanlines = data;
@@ -236,7 +236,7 @@ begin
         linebuf_rdclock = pclk_2x;
         linebuf_hoffset = hcnt_2x;
         pclk_act = pclk_2x;
-        slid_act = {1'b0, vcnt_2x[0]};
+        slid_act = {line_out_idx_2x[1], line_out_idx_2x[0]^FID_1x};
         hcnt_act = hcnt_2x;
         vcnt_act = vcnt_2x>>1;
     end
@@ -254,9 +254,9 @@ begin
             linebuf_rdclock = pclk_3x;
             linebuf_hoffset = hcnt_3x;
             pclk_act = pclk_3x;
+            slid_act = line_out_idx_3x;
             hcnt_act = hcnt_3x;
             vcnt_act = vcnt_3x/2'h3; //divider generated
-            slid_act = (vcnt_3x % 2'h3);
         end
         `LINETRIPLE_M1: begin
             DATA_enable_act = (h_enable_3x & v_enable_3x);
@@ -266,9 +266,9 @@ begin
             linebuf_rdclock = pclk_4x;
             linebuf_hoffset = hcnt_4x;
             pclk_act = pclk_4x;
+            slid_act = line_out_idx_3x;
             hcnt_act = hcnt_4x;
             vcnt_act = vcnt_3x/2'h3; //divider generated
-            slid_act = (vcnt_3x % 2'h3);
         end
         `LINETRIPLE_M2: begin
             DATA_enable_act = (h_enable_3x_h1x & v_enable_3x_h1x);
@@ -278,9 +278,9 @@ begin
             linebuf_rdclock = pclk_3x_h4x;
             linebuf_hoffset = hcnt_3x_h4x;
             pclk_act = pclk_3x_h4x;
+            slid_act = line_out_idx_3x_h1x;
             hcnt_act = hcnt_3x_h4x;
             vcnt_act = vcnt_3x_h1x/2'h3; //divider generated
-            slid_act = (vcnt_3x_h1x % 2'h3);
         end
         `LINETRIPLE_M3: begin
             DATA_enable_act = (h_enable_3x_h1x & v_enable_3x_h1x);
@@ -290,9 +290,9 @@ begin
             linebuf_rdclock = pclk_3x_h5x;
             linebuf_hoffset = hcnt_3x_h5x;
             pclk_act = pclk_3x_h5x;
+            slid_act = line_out_idx_3x_h1x;
             hcnt_act = hcnt_3x_h5x;
             vcnt_act = vcnt_3x_h1x/2'h3; //divider generated
-            slid_act = (vcnt_3x_h1x % 2'h3);
         end
         endcase
     end
@@ -377,9 +377,9 @@ begin
             VSYNC_pp1 <= VSYNC_act;
             DATA_enable_pp1 <= DATA_enable_act;
             
-            R_out <= apply_scanlines(V_SCANLINES, R_pp1, V_SCANLINESTR, V_SCANLINEID, slid_act, hcnt_act[0], FID_prev);
-            G_out <= apply_scanlines(V_SCANLINES, G_pp1, V_SCANLINESTR, V_SCANLINEID, slid_act, hcnt_act[0], FID_prev);
-            B_out <= apply_scanlines(V_SCANLINES, B_pp1, V_SCANLINESTR, V_SCANLINEID, slid_act, hcnt_act[0], FID_prev);
+            R_out <= apply_scanlines(V_SCANLINES, R_pp1, V_SCANLINESTR, V_SCANLINEID, slid_act, hcnt_act[0], FID_1x);
+            G_out <= apply_scanlines(V_SCANLINES, G_pp1, V_SCANLINESTR, V_SCANLINEID, slid_act, hcnt_act[0], FID_1x);
+            B_out <= apply_scanlines(V_SCANLINES, B_pp1, V_SCANLINESTR, V_SCANLINEID, slid_act, hcnt_act[0], FID_1x);
             HSYNC_out <= HSYNC_pp1;
             VSYNC_out <= VSYNC_pp1;
             DATA_enable <= DATA_enable_pp1;
@@ -458,6 +458,7 @@ begin
             VSYNC_1x <= 0;
             h_enable_1x <= 0;
             v_enable_1x <= 0;
+            FID_1x <= 0;
         end
     else
         begin
@@ -468,6 +469,7 @@ begin
                     line_idx <= line_idx ^ 1'b1;
                     vcnt_1x <= vcnt_1x + 1'b1;
                     vcnt_1x_tvp <= vcnt_1x_tvp + 1'b1;
+                    FID_1x <= fpga_vsyncgen[`VSYNCGEN_CHOPMID_BIT] ? 0 : (fpga_vsyncgen[`VSYNCGEN_GENMID_BIT] ? (vcnt_1x > (V_BACKPORCH + V_ACTIVE)) : FID_in);
                 end
             else
                 begin
@@ -542,13 +544,20 @@ begin
             VSYNC_2x <= 0;
             h_enable_2x <= 0;
             v_enable_2x <= 0;
+            line_out_idx_2x <= 0;
         end
     else
         begin
             if ((pclk_1x == 1'b0) & `HSYNC_TRAILING_EDGE)   //sync with posedge of pclk_1x
-                hcnt_2x <= 0;
+                begin
+                    hcnt_2x <= 0;
+                    line_out_idx_2x <= 0;
+                end
             else if (hcnt_2x == hmax[~line_idx]) //line_idx_prev?
-                hcnt_2x <= 0;
+                begin
+                    hcnt_2x <= 0;
+                    line_out_idx_2x <= line_out_idx_2x + 1'b1;
+                end
             else
                 hcnt_2x <= hcnt_2x + 1'b1;
 
@@ -599,13 +608,20 @@ begin
             v_enable_3x <= 0;
             pclk_3x_cnt <= 0;
             pclk_1x_prev3x <= 0;
+            line_out_idx_3x <= 0;
         end
     else
         begin
             if ((pclk_3x_cnt == 0) & `HSYNC_TRAILING_EDGE)  //sync with posedge of pclk_1x
-                hcnt_3x <= 0;
+                begin
+                    hcnt_3x <= 0;
+                    line_out_idx_3x <= 0;
+                end
             else if (hcnt_3x == hmax[~line_idx]) //line_idx_prev?
-                hcnt_3x <= 0;
+                begin
+                    hcnt_3x <= 0;
+                    line_out_idx_3x <= line_out_idx_3x + 1'b1;
+                end
             else
                 hcnt_3x <= hcnt_3x + 1'b1;
 
@@ -668,13 +684,20 @@ begin
             v_enable_3x_h1x <= 0;
             pclk_3x_h1x_cnt <= 0;
             pclk_1x_prev3x_h1x <= 0;
+            line_out_idx_3x_h1x <= 0;
         end
     else
         begin
             if ((pclk_3x_h1x_cnt == 0) & `HSYNC_TRAILING_EDGE)  //sync with posedge of pclk_1x
-                hcnt_3x_h1x <= 0;
+                begin
+                    hcnt_3x_h1x <= 0;
+                    line_out_idx_3x_h1x <= 0;
+                end
             else if (hcnt_3x_h1x == hmax[~line_idx]) //line_idx_prev?
-                hcnt_3x_h1x <= 0;
+                begin
+                    hcnt_3x_h1x <= 0;
+                    line_out_idx_3x_h1x <= line_out_idx_3x_h1x + 1'b1;
+                end
             else
                 hcnt_3x_h1x <= hcnt_3x_h1x + 1'b1;
 

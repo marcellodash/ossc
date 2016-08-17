@@ -2135,7 +2135,7 @@ ReadEDID(BYTE *pData,BYTE bSegment,BYTE offset,SHORT Count)
 
         if(TimeOut == 0)
         {
-            ErrorF("ReadEDID(): DDC TimeOut. \n",ucdata) ;
+            ErrorF("ReadEDID(): DDC TimeOut (DDC_STATUS = %02X). \n",ucdata) ;
             return ER_FAIL ;
         }
 
