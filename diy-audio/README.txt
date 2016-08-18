@@ -1,3 +1,12 @@
+The OSSC does not output audio over HDMI or DVI-D, respectively. This add on captures the analoge audio you feed over the SCART or audio 3.5mm stereo jack. The audio signal is digitalize and put into the IT6613E over the I2S audio interface.
+
+Firmware
+========
+The IT6613E has to be programmed appropriately to insert audio to the digital video output. In the 'original' firmware audio is not taken into account. Therefore the firmware of the OSSC has to be updated.
+You can grab the current firmware here: https://github.com/borti4938/ossc/tree/diy-audio/diy-audio/fw-build
+I do my best to keep the firmware synchronized with updates by marqs85. However, as marqs includes more and more features to the firmware there might be a point where I have to cut features due to the lack of memory space.
+
+
 PCB Production
 ==============
 Choose the service you would ever like. I have uploaded the design to OSHPark, too.
@@ -7,6 +16,7 @@ I have produced the PCBs with OSHPark and have chosen 0.8mm thickness. The PCB m
 Link to PCB at OSHPark:
 - https://oshpark.com/shared_projects/rmFBAKyo (for v1.3)
 - https://oshpark.com/shared_projects/vKUEgBSy (for v1.5)
+- https://oshpark.com/shared_projects/WeKdeoGP (for v1.5 with wired connection to the SCART)
 
 Part list of the DIY-Audio PCB
 ==============================
@@ -28,8 +38,7 @@ running number ------ footprint(s) --------- device/part --------- package -----
 RC-filtering of the Audio
 =========================
 The RC filters (R19,C19) and (R20,C20) mainly bandlimits the noise. The filter also avoids aliasing effects if the bandwith of the audio signal increases.
-The PCM1808 samples the audio signal with 96kHz. This means that the cut-off frequency of the filters have to be 96kHz or below. The firmware will also
-allows you to further downsample the datastream to 48kHz. If you want to use that I recommend you to set the filter to 48kHz or below to avoid aliasing.
+The PCM1808 samples the audio signal with 96kHz. This means that the cut-off frequency of the filters have to be 96kHz or below. The firmware will also allows you to further downsample the datastream to 48kHz. If you want to use that I recommend you to set the filter to 48kHz or below to avoid aliasing.
 The cut-off frequency f_c of a simple RC low pass filter is determined by f_c = 1/(2*pi*R*C).
 here is my choice which gives a cut-off frequency of 47.938kHz.
      10         |  R19, R20  |  res. 3.32 kOhm   |  SMD0603  |  71-CRCW0603-3.32K-E3  
