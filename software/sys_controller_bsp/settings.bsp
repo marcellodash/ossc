@@ -2,8 +2,8 @@
 <sch:Settings xmlns:sch="http://www.altera.com/embeddedsw/bsp/schema">
         <BspType>hal</BspType>
         <BspVersion>default</BspVersion>
-        <BspGeneratedTimeStamp>22.08.2016 09:55:19</BspGeneratedTimeStamp>
-        <BspGeneratedUnixTimeStamp>1471852519376</BspGeneratedUnixTimeStamp>
+        <BspGeneratedTimeStamp>28.08.2016 20:38:51</BspGeneratedTimeStamp>
+        <BspGeneratedUnixTimeStamp>1472409531656</BspGeneratedUnixTimeStamp>
         <BspGeneratedLocation>F:\Documents\Workspaces\GitHub\OSSC\OSSC-diy-audio\software\sys_controller_bsp</BspGeneratedLocation>
         <BspSettingsFile>settings.bsp</BspSettingsFile>
         <SopcDesignFile>..\..\sys.sopcinfo</SopcDesignFile>
