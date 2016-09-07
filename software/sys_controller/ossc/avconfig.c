@@ -36,6 +36,7 @@
 
 extern mode_data_t video_modes[], video_modes_def[];
 extern alt_u8 video_mode_cnt;
+extern alt_u8 update_cur_vm;
 
 // Target configuration
 avconfig_t tc;
@@ -44,6 +45,7 @@ avconfig_t tc;
 const avconfig_t tc_default = {
     .sampler_phase = DEFAULT_SAMPLER_PHASE,
     .sync_vth = DEFAULT_SYNC_VTH,
+    .linelen_tol = DEFAULT_LINELEN_TOL,
     .vsync_thold = DEFAULT_VSYNC_THOLD,
     .pre_coast = DEFAULT_PRE_COAST,
     .post_coast = DEFAULT_POST_COAST,
@@ -64,6 +66,7 @@ int set_default_avconfig()
     tc.tx_mode = !!(IORD_ALTERA_AVALON_PIO_DATA(PIO_1_BASE) & HDMITX_MODE_MASK);
 
     memcpy(video_modes, video_modes_def, video_mode_cnt*sizeof(mode_data_t));
+    update_cur_vm = 1;
 
     return 0;
 }
