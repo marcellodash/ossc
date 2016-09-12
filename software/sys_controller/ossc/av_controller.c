@@ -90,8 +90,7 @@ void SetupAudio(BYTE bAudioEn)
     if (bAudioEn && tc.tx_mode == TX_HDMI) {
         alt_u32  pclk = (clkrate[REFCLK_EXT27]/cm.clkcnt)*video_modes[cm.id].h_total;
         EnableAudioOutputShort4OSSC(pclk, tc.audio_dw_sampl, tc.audio_swap_lr);
-        if (!(IORD_ALTERA_AVALON_PIO_DATA(PIO_1_BASE) & HDMITX_MODE_MASK) && tc.tx_mode == TX_HDMI)
-            HDMITX_SetAudioInfoFrame((BYTE) tc.audio_dw_sampl);
+        HDMITX_SetAudioInfoFrame((BYTE) tc.audio_dw_sampl);
     }
 }
 
@@ -105,7 +104,7 @@ void TX_enable(tx_mode_t mode)
     // re-setup
     EnableVideoOutput(PCLK_MEDIUM, COLOR_RGB444, COLOR_RGB444, mode == TX_HDMI);
     //TODO: set correct VID based on mode
-    if (!(IORD_ALTERA_AVALON_PIO_DATA(PIO_1_BASE) & HDMITX_MODE_MASK) && mode == TX_HDMI)
+    if (mode == TX_HDMI)
         HDMITX_SetAVIInfoFrame(HDMI_480p60, F_MODE_RGB444, 0, 0);
 
     // start TX
