@@ -115,7 +115,7 @@ MENU(menu_postproc, P99_PROTECT({ \
 MENU(menu_audio, P99_PROTECT({ \
     { "Down-sampling",      OPT_AVCONFIG_SELECTION, { .sel = { &tc.audio_dw_sampl, OPT_WRAP, SETTING_ITEM(audio_dw_sampl_desc) } } },
     { "Swap left/right",    OPT_AVCONFIG_SELECTION, { .sel = { &tc.audio_swap_lr,  OPT_WRAP, SETTING_ITEM(off_on_desc) } } },
-    { "Mute",               OPT_AVCONFIG_SELECTION, { .sel = { &tc.audio_mute,     OPT_WRAP, SETTING_ITEM(off_on_desc) } } },
+    { "Use ext. MCLK",      OPT_AVCONFIG_SELECTION, { .sel = { &tc.audio_ext_mclk, OPT_WRAP, SETTING_ITEM(off_on_desc) } } },
 }))
 
 MENU(menu_main, P99_PROTECT({ \

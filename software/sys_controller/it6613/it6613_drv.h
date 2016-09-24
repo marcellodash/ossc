@@ -233,6 +233,9 @@
 #define REG_TX_AUTH_STAT 0x46
 #define B_T_AUTH_DONE (1<<7)
 #define REG_TX_CLK_CTRL0 0x58
+    #define O_MCLK_SAMP 7
+    #define B_EXT_MCLK_SAMP (1<<O_MCLK_SAMP)
+    #define B_INT_MCLK_SAMP (0<<O_MCLK_SAMP)
     #define O_OSCLK_SEL 5
     #define M_OSCLK_SEL 3
     #define B_AUTO_OVER_SAMPLING_CLOCK (1<<4)
@@ -242,6 +245,9 @@
     #define B_EXT_256FS (1<<O_EXT_MCLK_SEL)
     #define B_EXT_512FS (2<<O_EXT_MCLK_SEL)
     #define B_EXT_1024FS (3<<O_EXT_MCLK_SEL)
+    #define O_MCLK4CTS 1
+    #define B_EXT_MCLK4CTS (1<<O_MCLK4CTS)
+    #define B_INT_MCLK4CTS (0<<O_MCLK4CTS)
 
 #define REG_TX_SHA_SEL       0x50
 #define REG_TX_SHA_RD_BYTE1  0x51
@@ -507,7 +513,7 @@
 	#define B_AUDFMT_MSB_SHIFT_FIRST (0<<4)
 	#define B_AUDFMT_LSB_SHIFT_FIRST (1<<4)
 	#define B_AUDFMT_RISE_EDGE_SAMPLE_WS (0<<5)
-	#define B_AUDFMT_FALL_EDGE_SAMPLE_WS (0<<5)
+	#define B_AUDFMT_FALL_EDGE_SAMPLE_WS (1<<5)
 
 #define REG_TX_AUDIO_FIFOMAP 0xE2
 	#define O_FIFO3SEL 6
@@ -815,7 +821,7 @@ BOOL ProgramDEGenModeByID(MODE_ID id,BYTE bInputSignalType) ;
 BOOL ProgramSyncEmbeddedVideoMode(BYTE VIC,BYTE bInputType) ;
 #endif
 BOOL EnableAudioOutput(unsigned long VideoPixelClock,BYTE bAudioSampleFreq,BYTE ChannelNumber,BYTE bAudSWL,BYTE bSPDIF) ;
-BOOL EnableAudioOutputShort4OSSC(ULONG VideoPixelClock, BYTE bAudioDwSampl,BYTE bAudioSwapLR) ;
+BOOL EnableAudioOutput4OSSC(ULONG VideoPixelClock,BYTE bExtMCLK,BYTE bAudioDwSampl,BYTE bAudioSwapLR) ;
 void DisableIT6613() ;
 void DisableVideoOutput() ;
 void DisableAudioOutput() ;

@@ -59,7 +59,7 @@ typedef struct {
     alt_u8 post_coast;
     alt_u8 audio_dw_sampl;
     alt_u8 audio_swap_lr;
-    alt_u8 audio_mute;
+    alt_u8 audio_ext_mclk;
     alt_u8 edtv_l2x;
     alt_u8 interlace_pt;
     alt_u8 def_input;

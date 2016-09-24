@@ -26,7 +26,7 @@
 #include "tvp7002.h"
 #include "av_controller.h"
 
-#define DEFAULT_ON             1
+#define DEFAULT_ON              1
 #define DEFAULT_PRE_COAST       1
 #define DEFAULT_POST_COAST      0
 #define DEFAULT_SAMPLER_PHASE   16

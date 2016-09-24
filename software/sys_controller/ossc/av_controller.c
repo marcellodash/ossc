@@ -81,15 +81,15 @@ void lcd_write_status() {
     lcd_write((char*)&row1, (char*)&row2);
 }
 
-void SetupAudio(BYTE bAudioEn)
+void SetupAudio(tx_mode_t mode)
 {
     // shut down audio-tx before setting new config (recommended for changing audio-tx config)
     DisableAudioOutput();
     EnableAudioInfoFrame(FALSE, NULL);
 
-    if (bAudioEn && tc.tx_mode == TX_HDMI) {
+    if (tc.tx_mode == TX_HDMI) {
         alt_u32  pclk = (clkrate[REFCLK_EXT27]/cm.clkcnt)*video_modes[cm.id].h_total;
-        EnableAudioOutputShort4OSSC(pclk, tc.audio_dw_sampl, tc.audio_swap_lr);
+        EnableAudioOutput4OSSC(pclk,tc.audio_ext_mclk,tc.audio_dw_sampl,tc.audio_swap_lr);
         HDMITX_SetAudioInfoFrame((BYTE) tc.audio_dw_sampl);
     }
 }
@@ -104,8 +104,10 @@ void TX_enable(tx_mode_t mode)
     // re-setup
     EnableVideoOutput(PCLK_MEDIUM, COLOR_RGB444, COLOR_RGB444, mode == TX_HDMI);
     //TODO: set correct VID based on mode
-    if (mode == TX_HDMI)
+    if (mode == TX_HDMI) {
         HDMITX_SetAVIInfoFrame(HDMI_480p60, F_MODE_RGB444, 0, 0);
+        SetupAudio(mode);
+    }
 
     // start TX
     SetAVMute(FALSE);
@@ -301,9 +303,10 @@ status_t get_status(tvp_input_t input, video_format format)
         tvp_set_fine_gain_offset(&cm.cc.col);
 
     if ((tc.audio_dw_sampl != cm.cc.audio_dw_sampl) ||
-        (tc.audio_mute != cm.cc.audio_mute) ||
-        (tc.audio_swap_lr != cm.cc.audio_swap_lr))
-        SetupAudio(!tc.audio_mute);
+        (tc.audio_swap_lr != cm.cc.audio_swap_lr) ||
+        (tc.audio_ext_mclk != cm.cc.audio_ext_mclk)
+       )
+        SetupAudio(tc.tx_mode);
 
     cm.cc = tc;
     update_cur_vm = 0;
@@ -518,7 +521,6 @@ int init_hw()
 
     // init always in HDMI mode (fixes yellow screen bug)
     TX_enable(TX_HDMI);
-    SetupAudio(FALSE);
 
     return 0;
 }
@@ -534,7 +536,6 @@ void enable_outputs()
     // enable and unmute HDMITX
     // TODO: check pclk
     TX_enable(tc.tx_mode);
-    SetupAudio(!tc.audio_mute);
 }
 
 int main()
@@ -638,7 +639,6 @@ int main()
                     printf("Sync lost\n");
                     cm.clkcnt = 0; //TODO: proper invalidate
                     tvp_disable_output();
-                    DisableAudioOutput();
                     //ths_source_sel(THS_STANDBY, 0);
                     strncpy(row1, avinput_str[cm.avinput], LCD_ROW_LEN+1);
                     strncpy(row2, "    NO SYNC", LCD_ROW_LEN+1);

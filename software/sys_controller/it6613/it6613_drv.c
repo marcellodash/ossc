@@ -523,18 +523,17 @@ BOOL EnableAudioOutput(ULONG VideoPixelClock,BYTE bAudioSampleFreq,BYTE ChannelN
     return TRUE ;
 }
 
-BOOL EnableAudioOutputShort4OSSC(ULONG VideoPixelClock, BYTE bAudioDwSampl,BYTE bAudioSwapLR)
+BOOL EnableAudioOutput4OSSC(ULONG VideoPixelClock,BYTE bExtMCLK,BYTE bAudioDwSampl,BYTE bAudioSwapLR)
 {
     // set NTSC
-    // TODO: proper calculation of N-factor (???)
     ULONG n;
     switch (VideoPixelClock) {
-    case 74175000: n = 23296; break;
-    case 14835000: n = 11648; break;
-    default: n = 12288;
+      case 74175000: n = 23296; break;
+      case 14835000: n = 11648; break;
+      default: n = 12288;
     }
     if (bAudioDwSampl == 0x1)
-        n = n>>1;
+	  n = n>>1;
 
     Switch_HDMITX_Bank(1) ;
     HDMITX_WriteI2C_Byte(REGPktAudN0,(BYTE)((n)&0xFF)) ;
@@ -544,15 +543,15 @@ BOOL EnableAudioOutputShort4OSSC(ULONG VideoPixelClock, BYTE bAudioDwSampl,BYTE 
 
     HDMITX_WriteI2C_Byte(REG_TX_PKT_SINGLE_CTRL,0) ; // D[1] = 0,HW auto count CTS
 
-    // define internal MCLK and audio down-sampling
-    HDMITX_SetREG_Byte(REG_TX_CLK_CTRL0,~M_EXT_MCLK_SEL,B_EXT_256FS);
+    // define internal/external MCLK and audio down-sampling
+    HDMITX_SetREG_Byte(REG_TX_CLK_CTRL0,~(M_EXT_MCLK_SEL|B_EXT_MCLK_SAMP|B_EXT_MCLK4CTS),((bExtMCLK&0x1)<<O_MCLK_SAMP) | B_EXT_256FS | ((bExtMCLK&0x1)<<O_MCLK4CTS));
     HDMITX_AndREG_Byte(REG_TX_SW_RST,~M_AUD_DIV);
     if (bAudioDwSampl == 0x1)
         HDMITX_OrREG_Byte(REG_TX_CLK_CTRL1,B_AUD_DIV2);
 
     // set audio format
     Instance[0].TMDSClock = VideoPixelClock ;
-    BYTE fs = bAudioDwSampl ? AUDFS_48KHz : AUDFS_96KHz;
+    BYTE fs = bAudioDwSampl == 0x1 ? AUDFS_48KHz : AUDFS_96KHz;
     Instance[0].bAudFs = fs;
     Instance[0].bOutputAudioMode = B_AUDFMT_STD_I2S;
     Instance[0].bAudioChannelSwap = bAudioSwapLR == 0x1 ? 0xf : 0x0; // swap channels
