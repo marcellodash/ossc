@@ -159,7 +159,8 @@
 <smd name="10" x="-3.2" y="25.5" dx="1" dy="0.246" layer="1" rot="R90"/>
 <smd name="11" x="-2.7" y="25.5" dx="1" dy="0.246" layer="1" rot="R90"/>
 <wire x1="-3.95" y1="25.65" x2="-3.95" y2="24.9" width="0.127" layer="21"/>
-<wire x1="-3.95" y1="24.9" x2="-7.95" y2="24.9" width="0.127" layer="21" style="shortdash"/>
+<wire x1="-3.95" y1="24.9" x2="-5.45" y2="24.9" width="0.127" layer="21" style="shortdash"/>
+<wire x1="-5.95" y1="24.9" x2="-7.95" y2="24.9" width="0.127" layer="21" style="shortdash"/>
 <wire x1="-2.45" y1="25.65" x2="-2.45" y2="24.9" width="0.127" layer="21"/>
 <wire x1="-2.45" y1="24.9" x2="4.55" y2="24.9" width="0.127" layer="21" style="shortdash"/>
 <text x="5" y="7.9" size="0.8128" layer="21" font="vector" ratio="12">&gt;NAME</text>
@@ -225,6 +226,9 @@
 <hole x="-3.81" y="0" drill="1.4"/>
 <hole x="0" y="0" drill="1.4"/>
 <hole x="3.81" y="0" drill="1.4"/>
+<smd name="5" x="-5.7" y="25.5" dx="1" dy="0.246" layer="1" rot="R90"/>
+<wire x1="-5.95" y1="25.65" x2="-5.95" y2="24.9" width="0.127" layer="21"/>
+<wire x1="-5.45" y1="25.65" x2="-5.45" y2="24.9" width="0.127" layer="21"/>
 </package>
 <package name="OSSC_OVERLAY_V1.5">
 <wire x1="5.334" y1="6.985" x2="4.699" y2="6.35" width="0.1524" layer="51"/>
@@ -322,6 +326,7 @@
 <hole x="-3.1" y="24.13" drill="0.6"/>
 <hole x="-4.2" y="24.13" drill="0.6"/>
 <hole x="-5.3" y="24.13" drill="0.6"/>
+<smd name="5" x="-7.62" y="23.495" dx="1.4224" dy="0.7112" layer="1" rot="R180"/>
 </package>
 </packages>
 <symbols>
@@ -389,16 +394,17 @@
 <text x="0" y="22.86" size="1.778" layer="95">&gt;NAME</text>
 <text x="0" y="-5.08" size="1.778" layer="96">&gt;VALUE</text>
 </symbol>
-<symbol name="IT6613E_I2S0_2">
-<pin name="I2S0" x="-5.08" y="2.54" length="middle"/>
-<pin name="WS" x="-5.08" y="7.62" length="middle"/>
-<wire x1="0" y1="15.24" x2="0" y2="0" width="0.254" layer="94"/>
-<wire x1="0" y1="0" x2="10.16" y2="0" width="0.254" layer="94"/>
-<wire x1="10.16" y1="0" x2="10.16" y2="15.24" width="0.254" layer="94"/>
-<wire x1="10.16" y1="15.24" x2="0" y2="15.24" width="0.254" layer="94"/>
-<text x="0" y="16.51" size="1.27" layer="95">&gt;NAME</text>
-<text x="0" y="-2.54" size="1.27" layer="95">&gt;VALUE</text>
-<pin name="SCK" x="-5.08" y="12.7" length="middle"/>
+<symbol name="IT6613E_I2S0">
+<pin name="I2S0" x="-7.62" y="-2.54" length="middle"/>
+<pin name="WS" x="-7.62" y="2.54" length="middle"/>
+<pin name="MCLK" x="-7.62" y="-7.62" length="middle"/>
+<wire x1="-2.54" y1="10.16" x2="-2.54" y2="-10.16" width="0.254" layer="94"/>
+<wire x1="-2.54" y1="-10.16" x2="7.62" y2="-10.16" width="0.254" layer="94"/>
+<wire x1="7.62" y1="-10.16" x2="7.62" y2="10.16" width="0.254" layer="94"/>
+<wire x1="7.62" y1="10.16" x2="-2.54" y2="10.16" width="0.254" layer="94"/>
+<text x="-2.54" y="11.43" size="1.27" layer="95">&gt;NAME</text>
+<text x="-2.54" y="-12.7" size="1.27" layer="95">&gt;VALUE</text>
+<pin name="SCK" x="-7.62" y="7.62" length="middle"/>
 </symbol>
 </symbols>
 <devicesets>
@@ -473,13 +479,14 @@
 </deviceset>
 <deviceset name="OSSC_DIY_AUDIO_OVERLAY">
 <gates>
-<gate name="G$1" symbol="IT6613E_I2S0_2" x="-12.7" y="2.54"/>
 <gate name="G$2" symbol="SCART_AUDIO_GND" x="12.7" y="10.16"/>
+<gate name="G$1" symbol="IT6613E_I2S0" x="-7.62" y="10.16"/>
 </gates>
 <devices>
 <device name="DIY-V1.3" package="OSSC_OVERLAY_V1.3">
 <connects>
 <connect gate="G$1" pin="I2S0" pad="9"/>
+<connect gate="G$1" pin="MCLK" pad="5"/>
 <connect gate="G$1" pin="SCK" pad="11"/>
 <connect gate="G$1" pin="WS" pad="10"/>
 <connect gate="G$2" pin="A_L" pad="6"/>
@@ -493,6 +500,7 @@
 <device name="DIY-V1.5" package="OSSC_OVERLAY_V1.5">
 <connects>
 <connect gate="G$1" pin="I2S0" pad="9"/>
+<connect gate="G$1" pin="MCLK" pad="5"/>
 <connect gate="G$1" pin="SCK" pad="11"/>
 <connect gate="G$1" pin="WS" pad="10"/>
 <connect gate="G$2" pin="A_L" pad="6"/>
@@ -12846,7 +12854,7 @@ Source: AVX .. aphvc.pdf</description>
 <part name="FB1" library="rcl" deviceset="R-EU_" device="R0603"/>
 <part name="FB2" library="rcl" deviceset="R-EU_" device="R0603"/>
 <part name="U2" library="OSSC_HDMI_Audio" deviceset="74LVC1G34" device=""/>
-<part name="U$1" library="OSSC_HDMI_Audio" deviceset="OSSC_DIY_AUDIO_OVERLAY" device="DIY-V1.5"/>
+<part name="U$4" library="OSSC_HDMI_Audio" deviceset="OSSC_DIY_AUDIO_OVERLAY" device="DIY-V1.3"/>
 </parts>
 <sheets>
 <sheet>
@@ -12902,8 +12910,8 @@ Source: AVX .. aphvc.pdf</description>
 <instance part="FB2" gate="G$1" x="60.96" y="83.82" rot="R180"/>
 <instance part="U2" gate="G$1" x="22.86" y="30.48"/>
 <instance part="U2" gate="G$2" x="83.82" y="48.26"/>
-<instance part="U$1" gate="G$1" x="205.74" y="22.86"/>
-<instance part="U$1" gate="G$2" x="208.28" y="60.96"/>
+<instance part="U$4" gate="G$1" x="205.74" y="27.94"/>
+<instance part="U$4" gate="G$2" x="208.28" y="60.96"/>
 </instances>
 <busses>
 </busses>
@@ -12912,8 +12920,8 @@ Source: AVX .. aphvc.pdf</description>
 <segment>
 <pinref part="GND1" gate="1" pin="GND"/>
 <wire x1="198.12" y1="55.88" x2="198.12" y2="53.34" width="0.1524" layer="91"/>
-<pinref part="U$1" gate="G$2" pin="GND"/>
-<wire x1="198.12" y1="55.88" x2="200.66" y2="55.88" width="0.1524" layer="91"/>
+<wire x1="200.66" y1="55.88" x2="198.12" y2="55.88" width="0.1524" layer="91"/>
+<pinref part="U$4" gate="G$2" pin="GND"/>
 </segment>
 <segment>
 <pinref part="GND2" gate="1" pin="GND"/>
@@ -13015,15 +13023,15 @@ Source: AVX .. aphvc.pdf</description>
 <net name="N$1" class="0">
 <segment>
 <pinref part="C18" gate="G$1" pin="-"/>
-<pinref part="U$1" gate="G$2" pin="A_L"/>
 <wire x1="200.66" y1="60.96" x2="193.04" y2="60.96" width="0.1524" layer="91"/>
+<pinref part="U$4" gate="G$2" pin="A_L"/>
 </segment>
 </net>
 <net name="N$2" class="0">
 <segment>
 <pinref part="C17" gate="G$1" pin="-"/>
-<pinref part="U$1" gate="G$2" pin="A_R"/>
 <wire x1="200.66" y1="66.04" x2="193.04" y2="66.04" width="0.1524" layer="91"/>
+<pinref part="U$4" gate="G$2" pin="A_R"/>
 </segment>
 </net>
 <net name="N$3" class="0">
@@ -13067,15 +13075,15 @@ Source: AVX .. aphvc.pdf</description>
 <pinref part="U1" gate="G$1" pin="LRCK"/>
 <wire x1="134.62" y1="35.56" x2="132.08" y2="35.56" width="0.1524" layer="91"/>
 <wire x1="132.08" y1="35.56" x2="132.08" y2="30.48" width="0.1524" layer="91"/>
-<wire x1="132.08" y1="30.48" x2="200.66" y2="30.48" width="0.1524" layer="91"/>
-<pinref part="U$1" gate="G$1" pin="WS"/>
+<wire x1="132.08" y1="30.48" x2="198.12" y2="30.48" width="0.1524" layer="91"/>
+<pinref part="U$4" gate="G$1" pin="WS"/>
 </segment>
 </net>
 <net name="N$14" class="0">
 <segment>
-<wire x1="162.56" y1="35.56" x2="200.66" y2="35.56" width="0.1524" layer="91"/>
+<wire x1="162.56" y1="35.56" x2="198.12" y2="35.56" width="0.1524" layer="91"/>
 <pinref part="U1" gate="G$1" pin="BCK"/>
-<pinref part="U$1" gate="G$1" pin="SCK"/>
+<pinref part="U$4" gate="G$1" pin="SCK"/>
 </segment>
 </net>
 <net name="N$15" class="0">
@@ -13083,8 +13091,8 @@ Source: AVX .. aphvc.pdf</description>
 <pinref part="U1" gate="G$1" pin="DOUT"/>
 <wire x1="162.56" y1="40.64" x2="177.8" y2="40.64" width="0.1524" layer="91"/>
 <wire x1="177.8" y1="40.64" x2="177.8" y2="25.4" width="0.1524" layer="91"/>
-<wire x1="177.8" y1="25.4" x2="200.66" y2="25.4" width="0.1524" layer="91"/>
-<pinref part="U$1" gate="G$1" pin="I2S0"/>
+<wire x1="177.8" y1="25.4" x2="198.12" y2="25.4" width="0.1524" layer="91"/>
+<pinref part="U$4" gate="G$1" pin="I2S0"/>
 </segment>
 </net>
 <net name="VCC" class="0">
@@ -13196,6 +13204,10 @@ Source: AVX .. aphvc.pdf</description>
 <wire x1="129.54" y1="40.64" x2="134.62" y2="40.64" width="0.1524" layer="91"/>
 <pinref part="R31" gate="G$1" pin="2"/>
 <wire x1="129.54" y1="30.48" x2="91.44" y2="30.48" width="0.1524" layer="91"/>
+<pinref part="U$4" gate="G$1" pin="MCLK"/>
+<wire x1="198.12" y1="20.32" x2="129.54" y2="20.32" width="0.1524" layer="91"/>
+<wire x1="129.54" y1="20.32" x2="129.54" y2="30.48" width="0.1524" layer="91"/>
+<junction x="129.54" y="30.48"/>
 </segment>
 </net>
 <net name="VCC/2" class="0">

@@ -6,7 +6,7 @@
 <setting alwaysvectorfont="no"/>
 <setting verticaltext="up"/>
 </settings>
-<grid distance="0.1" unitdist="inch" unit="inch" style="lines" multiple="1" display="no" altdistance="0.01" altunitdist="inch" altunit="inch"/>
+<grid distance="0.05" unitdist="inch" unit="inch" style="lines" multiple="1" display="yes" altdistance="0.025" altunitdist="inch" altunit="inch"/>
 <layers>
 <layer number="1" name="Top" color="4" fill="1" visible="yes" active="yes"/>
 <layer number="16" name="Bottom" color="1" fill="1" visible="yes" active="yes"/>
@@ -228,92 +228,6 @@
 <text x="-1.905" y="3.175" size="1.016" layer="25" font="vector" ratio="12">&gt;NAME</text>
 <text x="-1.905" y="-3.81" size="1.016" layer="27" font="vector" ratio="12">&gt;VALUE</text>
 </package>
-<package name="OSSC_OVERLAY_V1.3_W_MCLK">
-<wire x1="5.334" y1="6.985" x2="4.699" y2="6.35" width="0.1524" layer="51"/>
-<wire x1="4.699" y1="6.35" x2="4.699" y2="2.667" width="0.1524" layer="51"/>
-<wire x1="4.699" y1="2.667" x2="4.191" y2="2.159" width="0.1524" layer="51"/>
-<wire x1="3.429" y1="2.159" x2="2.921" y2="2.667" width="0.1524" layer="51"/>
-<wire x1="2.921" y1="2.667" x2="2.921" y2="6.35" width="0.1524" layer="51"/>
-<wire x1="2.921" y1="6.35" x2="2.286" y2="6.985" width="0.1524" layer="51"/>
-<wire x1="2.286" y1="6.985" x2="1.524" y2="6.985" width="0.1524" layer="51"/>
-<wire x1="1.524" y1="6.985" x2="0.889" y2="6.35" width="0.1524" layer="51"/>
-<wire x1="0.889" y1="6.35" x2="0.889" y2="2.667" width="0.1524" layer="51"/>
-<wire x1="5.334" y1="6.985" x2="6.096" y2="6.985" width="0.1524" layer="51"/>
-<wire x1="0.889" y1="2.667" x2="0.381" y2="2.159" width="0.1524" layer="51"/>
-<wire x1="-0.381" y1="2.159" x2="-0.889" y2="2.667" width="0.1524" layer="51"/>
-<wire x1="-0.889" y1="2.667" x2="-0.889" y2="6.35" width="0.1524" layer="51"/>
-<wire x1="-0.889" y1="6.35" x2="-1.524" y2="6.985" width="0.1524" layer="51"/>
-<wire x1="-1.524" y1="6.985" x2="-2.286" y2="6.985" width="0.1524" layer="51"/>
-<wire x1="-2.286" y1="6.985" x2="-2.921" y2="6.35" width="0.1524" layer="51"/>
-<wire x1="-2.921" y1="6.35" x2="-2.921" y2="2.667" width="0.1524" layer="51"/>
-<wire x1="-2.921" y1="2.667" x2="-3.429" y2="2.159" width="0.1524" layer="51"/>
-<wire x1="-4.191" y1="2.159" x2="-4.699" y2="2.667" width="0.1524" layer="51"/>
-<wire x1="-4.699" y1="2.667" x2="-4.699" y2="6.35" width="0.1524" layer="51"/>
-<wire x1="-4.699" y1="6.35" x2="-5.334" y2="6.985" width="0.1524" layer="51"/>
-<wire x1="-5.334" y1="6.985" x2="-6.096" y2="6.985" width="0.1524" layer="51"/>
-<pad name="2" x="3.81" y="0" drill="1.5" diameter="1.778" shape="offset" rot="R90"/>
-<pad name="4" x="0" y="0" drill="1.5" diameter="1.778" shape="offset" rot="R90" thermals="no"/>
-<pad name="6" x="-3.81" y="0" drill="1.5" diameter="1.778" shape="offset" rot="R90"/>
-<text x="3.429" y="3.429" size="1.27" layer="51" font="vector" ratio="10">2</text>
-<text x="-0.381" y="3.429" size="1.27" layer="51" font="vector" ratio="10">4</text>
-<text x="-4.191" y="3.429" size="1.27" layer="51" font="vector" ratio="10">6</text>
-<smd name="5" x="-5.7" y="25.4" dx="0.8" dy="0.2" layer="1" rot="R90"/>
-<smd name="9" x="-3.7" y="25.4" dx="0.8" dy="0.2" layer="1" rot="R90"/>
-<smd name="10" x="-3.2" y="25.4" dx="0.8" dy="0.2" layer="1" rot="R90"/>
-<smd name="11" x="-2.7" y="25.4" dx="0.8" dy="0.2" layer="1" rot="R90"/>
-<wire x1="-3.95" y1="25.65" x2="-3.95" y2="24.9" width="0.127" layer="21"/>
-<wire x1="-3.95" y1="24.9" x2="-5.45" y2="24.9" width="0.127" layer="21" style="shortdash"/>
-<wire x1="-5.45" y1="24.9" x2="-5.45" y2="25.65" width="0.127" layer="21"/>
-<wire x1="-5.95" y1="25.65" x2="-5.95" y2="24.9" width="0.127" layer="21"/>
-<wire x1="-5.95" y1="24.9" x2="-7.95" y2="24.9" width="0.127" layer="21" style="shortdash"/>
-<wire x1="-2.45" y1="25.65" x2="-2.45" y2="24.9" width="0.127" layer="21"/>
-<wire x1="-2.45" y1="24.9" x2="4.55" y2="24.9" width="0.127" layer="21" style="shortdash"/>
-<text x="5" y="7.9" size="0.8128" layer="21" font="vector" ratio="12">&gt;NAME</text>
-<polygon width="0.127" layer="21">
-<vertex x="-5.7" y="24.65" curve="-90"/>
-<vertex x="-5.45" y="24.4" curve="-90"/>
-<vertex x="-5.7" y="24.15" curve="-90"/>
-<vertex x="-5.95" y="24.4" curve="-90"/>
-</polygon>
-<polygon width="0.127" layer="21">
-<vertex x="-3.2" y="24.65" curve="90"/>
-<vertex x="-3.45" y="24.4" curve="90"/>
-<vertex x="-3.2" y="24.15" curve="90"/>
-<vertex x="-2.95" y="24.4" curve="90"/>
-</polygon>
-<polygon width="0.127" layer="21">
-<vertex x="1.8" y="24.65" curve="90"/>
-<vertex x="1.55" y="24.4" curve="90"/>
-<vertex x="1.8" y="24.15" curve="90"/>
-<vertex x="2.05" y="24.4" curve="90"/>
-</polygon>
-<polygon width="0.127" layer="21">
-<vertex x="-0.7" y="24.65" curve="90"/>
-<vertex x="-0.95" y="24.4" curve="90"/>
-<vertex x="-0.7" y="24.15" curve="90"/>
-<vertex x="-0.45" y="24.4" curve="90"/>
-</polygon>
-<polygon width="0.127" layer="21">
-<vertex x="4.3" y="24.65" curve="90"/>
-<vertex x="4.05" y="24.4" curve="90"/>
-<vertex x="4.3" y="24.15" curve="90"/>
-<vertex x="4.55" y="24.4" curve="90"/>
-</polygon>
-<wire x1="4.55" y1="24.9" x2="9.5" y2="24.9" width="0.127" layer="51" style="shortdash"/>
-<wire x1="-7.95" y1="24.9" x2="-7.95" y2="25.65" width="0.127" layer="21"/>
-<hole x="-1.905" y="5.08" drill="1.3208"/>
-<hole x="1.905" y="5.08" drill="1.3208"/>
-<hole x="5.715" y="5.08" drill="1.3208"/>
-<hole x="-5.715" y="5.08" drill="1.3208"/>
-<wire x1="4.55" y1="24.9" x2="4.55" y2="25.65" width="0.127" layer="21" style="shortdash"/>
-<wire x1="9.5" y1="24.9" x2="9.5" y2="7.15" width="0.127" layer="51" style="shortdash"/>
-<wire x1="9.5" y1="7.15" x2="5.7" y2="7.15" width="0.127" layer="51" style="shortdash"/>
-<wire x1="-10.7" y1="24.9" x2="-10.7" y2="28.15" width="0.127" layer="51" style="shortdash"/>
-<wire x1="-18.2" y1="22.9" x2="-18.2" y2="28.15" width="0.127" layer="51" style="shortdash"/>
-<wire x1="-10.7" y1="24.9" x2="-7.95" y2="24.9" width="0.127" layer="51" style="shortdash"/>
-<wire x1="-18.2" y1="22.9" x2="-22.2" y2="22.9" width="0.127" layer="51" style="shortdash"/>
-<wire x1="-5.7" y1="7.15" x2="-22.2" y2="7.15" width="0.127" layer="51" style="shortdash"/>
-</package>
 <package name="74LVC1G34DCK">
 <smd name="1" x="-1.1" y="0.65" dx="0.9" dy="0.4" layer="1"/>
 <smd name="2" x="-1.1" y="0" dx="0.9" dy="0.4" layer="1"/>
@@ -364,7 +278,8 @@
 <smd name="10" x="-3.2" y="25.5" dx="1" dy="0.246" layer="1" rot="R90"/>
 <smd name="11" x="-2.7" y="25.5" dx="1" dy="0.246" layer="1" rot="R90"/>
 <wire x1="-3.95" y1="25.65" x2="-3.95" y2="24.9" width="0.127" layer="21"/>
-<wire x1="-3.95" y1="24.9" x2="-7.95" y2="24.9" width="0.127" layer="21" style="shortdash"/>
+<wire x1="-3.95" y1="24.9" x2="-5.45" y2="24.9" width="0.127" layer="21" style="shortdash"/>
+<wire x1="-5.95" y1="24.9" x2="-7.95" y2="24.9" width="0.127" layer="21" style="shortdash"/>
 <wire x1="-2.45" y1="25.65" x2="-2.45" y2="24.9" width="0.127" layer="21"/>
 <wire x1="-2.45" y1="24.9" x2="4.55" y2="24.9" width="0.127" layer="21" style="shortdash"/>
 <text x="5" y="7.9" size="0.8128" layer="21" font="vector" ratio="12">&gt;NAME</text>
@@ -430,6 +345,9 @@
 <hole x="-3.81" y="0" drill="1.4"/>
 <hole x="0" y="0" drill="1.4"/>
 <hole x="3.81" y="0" drill="1.4"/>
+<smd name="5" x="-5.7" y="25.5" dx="1" dy="0.246" layer="1" rot="R90"/>
+<wire x1="-5.95" y1="25.65" x2="-5.95" y2="24.9" width="0.127" layer="21"/>
+<wire x1="-5.45" y1="25.65" x2="-5.45" y2="24.9" width="0.127" layer="21"/>
 </package>
 <package name="OSSC_OVERLAY_V1.5">
 <wire x1="5.334" y1="6.985" x2="4.699" y2="6.35" width="0.1524" layer="51"/>
@@ -527,6 +445,102 @@
 <hole x="-3.1" y="24.13" drill="0.6"/>
 <hole x="-4.2" y="24.13" drill="0.6"/>
 <hole x="-5.3" y="24.13" drill="0.6"/>
+<smd name="5" x="-7.62" y="23.495" dx="1.4224" dy="0.7112" layer="1" rot="R180"/>
+</package>
+<package name="OSSC_OVERLAY_V1.5B">
+<wire x1="5.334" y1="6.985" x2="4.699" y2="6.35" width="0.1524" layer="51"/>
+<wire x1="4.699" y1="6.35" x2="4.699" y2="2.667" width="0.1524" layer="51"/>
+<wire x1="4.699" y1="2.667" x2="4.191" y2="2.159" width="0.1524" layer="51"/>
+<wire x1="3.429" y1="2.159" x2="2.921" y2="2.667" width="0.1524" layer="51"/>
+<wire x1="2.921" y1="2.667" x2="2.921" y2="6.35" width="0.1524" layer="51"/>
+<wire x1="2.921" y1="6.35" x2="2.286" y2="6.985" width="0.1524" layer="51"/>
+<wire x1="2.286" y1="6.985" x2="1.524" y2="6.985" width="0.1524" layer="51"/>
+<wire x1="1.524" y1="6.985" x2="0.889" y2="6.35" width="0.1524" layer="51"/>
+<wire x1="0.889" y1="6.35" x2="0.889" y2="2.667" width="0.1524" layer="51"/>
+<wire x1="5.334" y1="6.985" x2="6.096" y2="6.985" width="0.1524" layer="51"/>
+<wire x1="0.889" y1="2.667" x2="0.381" y2="2.159" width="0.1524" layer="51"/>
+<wire x1="-0.381" y1="2.159" x2="-0.889" y2="2.667" width="0.1524" layer="51"/>
+<wire x1="-0.889" y1="2.667" x2="-0.889" y2="6.35" width="0.1524" layer="51"/>
+<wire x1="-0.889" y1="6.35" x2="-1.524" y2="6.985" width="0.1524" layer="51"/>
+<wire x1="-1.524" y1="6.985" x2="-2.286" y2="6.985" width="0.1524" layer="51"/>
+<wire x1="-2.286" y1="6.985" x2="-2.921" y2="6.35" width="0.1524" layer="51"/>
+<wire x1="-2.921" y1="6.35" x2="-2.921" y2="2.667" width="0.1524" layer="51"/>
+<wire x1="-2.921" y1="2.667" x2="-3.429" y2="2.159" width="0.1524" layer="51"/>
+<wire x1="-4.191" y1="2.159" x2="-4.699" y2="2.667" width="0.1524" layer="51"/>
+<wire x1="-4.699" y1="2.667" x2="-4.699" y2="6.35" width="0.1524" layer="51"/>
+<wire x1="-4.699" y1="6.35" x2="-5.334" y2="6.985" width="0.1524" layer="51"/>
+<wire x1="-5.334" y1="6.985" x2="-6.096" y2="6.985" width="0.1524" layer="51"/>
+<text x="3.429" y="3.429" size="1.27" layer="51" font="vector" ratio="10">2</text>
+<text x="-0.381" y="3.429" size="1.27" layer="51" font="vector" ratio="10">4</text>
+<text x="-4.191" y="3.429" size="1.27" layer="51" font="vector" ratio="10">6</text>
+<smd name="9" x="-5.3" y="23.75" dx="1.05" dy="0.55" layer="1" rot="R90"/>
+<smd name="10" x="-4.2" y="23.75" dx="1.05" dy="0.55" layer="1" rot="R90"/>
+<smd name="11" x="-3.1" y="23.75" dx="1.05" dy="0.55" layer="1" rot="R90"/>
+<wire x1="4.535" y1="24.9" x2="-7.95" y2="24.9" width="0.127" layer="21" style="shortdash"/>
+<text x="5" y="7.9" size="0.8128" layer="21" font="vector" ratio="12">&gt;NAME</text>
+<polygon width="0.127" layer="21">
+<vertex x="-5.7" y="24.65" curve="-90"/>
+<vertex x="-5.45" y="24.4" curve="-90"/>
+<vertex x="-5.7" y="24.15" curve="-90"/>
+<vertex x="-5.95" y="24.4" curve="-90"/>
+</polygon>
+<polygon width="0.127" layer="21">
+<vertex x="-3.2" y="24.65" curve="90"/>
+<vertex x="-3.45" y="24.4" curve="90"/>
+<vertex x="-3.2" y="24.15" curve="90"/>
+<vertex x="-2.95" y="24.4" curve="90"/>
+</polygon>
+<polygon width="0.127" layer="21">
+<vertex x="1.8" y="24.65" curve="90"/>
+<vertex x="1.55" y="24.4" curve="90"/>
+<vertex x="1.8" y="24.15" curve="90"/>
+<vertex x="2.05" y="24.4" curve="90"/>
+</polygon>
+<polygon width="0.127" layer="21">
+<vertex x="-0.7" y="24.65" curve="90"/>
+<vertex x="-0.95" y="24.4" curve="90"/>
+<vertex x="-0.7" y="24.15" curve="90"/>
+<vertex x="-0.45" y="24.4" curve="90"/>
+</polygon>
+<polygon width="0.127" layer="21">
+<vertex x="4.3" y="24.65" curve="90"/>
+<vertex x="4.05" y="24.4" curve="90"/>
+<vertex x="4.3" y="24.15" curve="90"/>
+<vertex x="4.55" y="24.4" curve="90"/>
+</polygon>
+<wire x1="4.55" y1="24.9" x2="9.5" y2="24.9" width="0.127" layer="51" style="shortdash"/>
+<wire x1="-7.95" y1="24.9" x2="-7.95" y2="25.65" width="0.127" layer="21"/>
+<wire x1="4.55" y1="24.9" x2="4.55" y2="25.65" width="0.127" layer="21" style="shortdash"/>
+<wire x1="9.5" y1="24.9" x2="9.5" y2="7.15" width="0.127" layer="51" style="shortdash"/>
+<wire x1="9.5" y1="7.15" x2="5.7" y2="7.15" width="0.127" layer="51" style="shortdash"/>
+<wire x1="-10.7" y1="24.9" x2="-10.7" y2="28.15" width="0.127" layer="51" style="shortdash"/>
+<wire x1="-18.2" y1="22.9" x2="-18.2" y2="28.15" width="0.127" layer="51" style="shortdash"/>
+<wire x1="-10.7" y1="24.9" x2="-7.95" y2="24.9" width="0.127" layer="51" style="shortdash"/>
+<wire x1="-18.2" y1="22.9" x2="-22.2" y2="22.9" width="0.127" layer="51" style="shortdash"/>
+<wire x1="-5.7" y1="7.15" x2="-22.2" y2="7.15" width="0.127" layer="51" style="shortdash"/>
+<wire x1="-5.715" y1="5.715" x2="-5.08" y2="5.08" width="0.127" layer="51" curve="-90"/>
+<wire x1="-5.08" y1="5.08" x2="-5.715" y2="4.445" width="0.127" layer="51" curve="-90"/>
+<wire x1="-5.715" y1="4.445" x2="-6.35" y2="5.08" width="0.127" layer="51" curve="-90"/>
+<wire x1="-6.35" y1="5.08" x2="-5.715" y2="5.715" width="0.127" layer="51" curve="-90"/>
+<wire x1="-1.905" y1="5.715" x2="-1.27" y2="5.08" width="0.127" layer="51" curve="-90"/>
+<wire x1="-1.27" y1="5.08" x2="-1.905" y2="4.445" width="0.127" layer="51" curve="-90"/>
+<wire x1="-1.905" y1="4.445" x2="-2.54" y2="5.08" width="0.127" layer="51" curve="-90"/>
+<wire x1="-2.54" y1="5.08" x2="-1.905" y2="5.715" width="0.127" layer="51" curve="-90"/>
+<wire x1="1.905" y1="5.715" x2="2.54" y2="5.08" width="0.127" layer="51" curve="-90"/>
+<wire x1="2.54" y1="5.08" x2="1.905" y2="4.445" width="0.127" layer="51" curve="-90"/>
+<wire x1="1.905" y1="4.445" x2="1.27" y2="5.08" width="0.127" layer="51" curve="-90"/>
+<wire x1="1.27" y1="5.08" x2="1.905" y2="5.715" width="0.127" layer="51" curve="-90"/>
+<wire x1="5.715" y1="5.715" x2="6.35" y2="5.08" width="0.127" layer="51" curve="-90"/>
+<wire x1="6.35" y1="5.08" x2="5.715" y2="4.445" width="0.127" layer="51" curve="-90"/>
+<wire x1="5.715" y1="4.445" x2="5.08" y2="5.08" width="0.127" layer="51" curve="-90"/>
+<wire x1="5.08" y1="5.08" x2="5.715" y2="5.715" width="0.127" layer="51" curve="-90"/>
+<hole x="-3.1" y="24.13" drill="0.6"/>
+<hole x="-4.2" y="24.13" drill="0.6"/>
+<hole x="-5.3" y="24.13" drill="0.6"/>
+<smd name="5" x="-7.62" y="23.495" dx="1.4224" dy="0.7112" layer="1" rot="R180"/>
+<smd name="6" x="-3.81" y="8.89" dx="2.1844" dy="1.0668" layer="1" rot="R90"/>
+<smd name="4" x="0" y="8.89" dx="2.1844" dy="1.0668" layer="1" rot="R90"/>
+<smd name="2" x="3.81" y="8.89" dx="2.1844" dy="1.0668" layer="1" rot="R90"/>
 </package>
 </packages>
 <symbols>
@@ -633,17 +647,6 @@
 <wire x1="17.78" y1="0" x2="0" y2="0" width="0.254" layer="94"/>
 <text x="0" y="22.86" size="1.778" layer="95">&gt;NAME</text>
 <text x="0" y="-5.08" size="1.778" layer="96">&gt;VALUE</text>
-</symbol>
-<symbol name="IT6613E_I2S0_2">
-<pin name="I2S0" x="-5.08" y="2.54" length="middle"/>
-<pin name="WS" x="-5.08" y="7.62" length="middle"/>
-<wire x1="0" y1="15.24" x2="0" y2="0" width="0.254" layer="94"/>
-<wire x1="0" y1="0" x2="10.16" y2="0" width="0.254" layer="94"/>
-<wire x1="10.16" y1="0" x2="10.16" y2="15.24" width="0.254" layer="94"/>
-<wire x1="10.16" y1="15.24" x2="0" y2="15.24" width="0.254" layer="94"/>
-<text x="0" y="16.51" size="1.27" layer="95">&gt;NAME</text>
-<text x="0" y="-2.54" size="1.27" layer="95">&gt;VALUE</text>
-<pin name="SCK" x="-5.08" y="12.7" length="middle"/>
 </symbol>
 </symbols>
 <devicesets>
@@ -791,28 +794,6 @@
 </device>
 </devices>
 </deviceset>
-<deviceset name="OSSC_OVERLAY_DIY_OVERLY_W_MCLK">
-<gates>
-<gate name="G$1" symbol="SCART_AUDIO_GND" x="10.16" y="10.16"/>
-<gate name="G$2" symbol="IT6613E_I2S0" x="-10.16" y="12.7"/>
-</gates>
-<devices>
-<device name="" package="OSSC_OVERLAY_V1.3_W_MCLK">
-<connects>
-<connect gate="G$1" pin="A_L" pad="6"/>
-<connect gate="G$1" pin="A_R" pad="2"/>
-<connect gate="G$1" pin="GND" pad="4"/>
-<connect gate="G$2" pin="I2S0" pad="9"/>
-<connect gate="G$2" pin="MCLK" pad="5"/>
-<connect gate="G$2" pin="SCK" pad="11"/>
-<connect gate="G$2" pin="WS" pad="10"/>
-</connects>
-<technologies>
-<technology name=""/>
-</technologies>
-</device>
-</devices>
-</deviceset>
 <deviceset name="74LVC1G34">
 <gates>
 <gate name="G$1" symbol="1G34" x="7.62" y="7.62"/>
@@ -834,13 +815,14 @@
 </deviceset>
 <deviceset name="OSSC_DIY_AUDIO_OVERLAY">
 <gates>
-<gate name="G$1" symbol="IT6613E_I2S0_2" x="-12.7" y="2.54"/>
 <gate name="G$2" symbol="SCART_AUDIO_GND" x="12.7" y="10.16"/>
+<gate name="G$1" symbol="IT6613E_I2S0" x="-7.62" y="10.16"/>
 </gates>
 <devices>
 <device name="DIY-V1.3" package="OSSC_OVERLAY_V1.3">
 <connects>
 <connect gate="G$1" pin="I2S0" pad="9"/>
+<connect gate="G$1" pin="MCLK" pad="5"/>
 <connect gate="G$1" pin="SCK" pad="11"/>
 <connect gate="G$1" pin="WS" pad="10"/>
 <connect gate="G$2" pin="A_L" pad="6"/>
@@ -854,6 +836,21 @@
 <device name="DIY-V1.5" package="OSSC_OVERLAY_V1.5">
 <connects>
 <connect gate="G$1" pin="I2S0" pad="9"/>
+<connect gate="G$1" pin="MCLK" pad="5"/>
+<connect gate="G$1" pin="SCK" pad="11"/>
+<connect gate="G$1" pin="WS" pad="10"/>
+<connect gate="G$2" pin="A_L" pad="6"/>
+<connect gate="G$2" pin="A_R" pad="2"/>
+<connect gate="G$2" pin="GND" pad="4"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+<device name="DIY-V1.5B" package="OSSC_OVERLAY_V1.5B">
+<connects>
+<connect gate="G$1" pin="I2S0" pad="9"/>
+<connect gate="G$1" pin="MCLK" pad="5"/>
 <connect gate="G$1" pin="SCK" pad="11"/>
 <connect gate="G$1" pin="WS" pad="10"/>
 <connect gate="G$2" pin="A_L" pad="6"/>
