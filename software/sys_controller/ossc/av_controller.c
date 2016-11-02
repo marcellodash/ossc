@@ -90,7 +90,7 @@ void SetupAudio(tx_mode_t mode)
     EnableAudioInfoFrame(FALSE, NULL);
 
     if (tc.tx_mode == TX_HDMI) {
-        alt_u32  pclk = (clkrate[REFCLK_EXT27]/cm.clkcnt)*video_modes[cm.id].h_total;
+        alt_u32 pclk = (TVP_EXTCLK_HZ/cm.clkcnt)*video_modes[cm.id].h_total;
         EnableAudioOutput4OSSC(pclk,tc.audio_ext_mclk,tc.audio_dw_sampl,tc.audio_swap_lr);
         HDMITX_SetAudioInfoFrame((BYTE) tc.audio_dw_sampl);
     }

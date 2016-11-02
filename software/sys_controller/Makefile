@@ -158,11 +158,7 @@ C_SRCS += ossc/av_controller.c
 C_SRCS += ossc/avconfig.c
 C_SRCS += ossc/controls.c
 C_SRCS += ossc/firmware.c
-ifeq ($(OSDLANG),JP)
-C_SRCS += ossc/menu_sjis.c
-else
 C_SRCS += ossc/menu.c
-endif
 C_SRCS += ossc/userdata.c
 C_SRCS += ulibSD/sd_io.c
 C_SRCS += ulibSD/spi_io.c

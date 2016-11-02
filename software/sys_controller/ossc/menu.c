@@ -50,10 +50,10 @@ static const char *s480p_mode_desc[] = { LNG("Auto","ｼﾞﾄﾞｳ"), "DTV 480
 static const char *sync_lpf_desc[] = { LNG("Off","ｵﾌ"), LNG("33MHz (min)","33MHz (ｻｲｼｮｳ)"), LNG("10MHz (med)","10MHz (ﾁｭｳｲ)"), LNG("2.5MHz (max)","2.5MHz (ｻｲﾀﾞｲ)") };
 static const char *l3_mode_desc[] = { LNG("Generic 16:9","ﾊﾝﾖｳ 16:9"), LNG("Generic 4:3","ﾊﾝﾖｳ 4:3"), LNG("320x240 optim.","320x240 ｻｲﾃｷ."), LNG("256x240 optim.","256x240 ｻｲﾃｷ.") };
 static const char *tx_mode_desc[] = { "HDMI", "DVI" };
-static const char *audio_dw_sampl_desc[] = { "Off (fs = 96kHz)", "2x  (fs = 48kHz)" };
 static const char *sl_mode_desc[] = { LNG("Off","ｵﾌ"), LNG("Auto","ｼﾞﾄﾞｳ"), LNG("Manual","ｼｭﾄﾞｳ") };
 static const char *sl_type_desc[] = { LNG("Horizontal","ｽｲﾍｲ"), LNG("Vertical","ｽｲﾁｮｸ"), LNG("Alternating","ｺｳｺﾞ") };
 static const char *sl_id_desc[] = { LNG("Top","ｳｴ"), LNG("Bottom","ｼﾀ") };
+static const char *audio_dw_sampl_desc[] = { LNG("Off (fs = 96kHz)","Off (fs = 96kHz)"), LNG("2x  (fs = 48kHz)","2x  (fs = 48kHz)") };
 
 static void sampler_phase_disp(alt_u8 v) { sniprintf(menu_row2, LCD_ROW_LEN+1, LNG("%d deg","%d ﾄﾞ"), (v*1125)/100); }
 static void sync_vth_disp(alt_u8 v) { sniprintf(menu_row2, LCD_ROW_LEN+1, "%d mV", (v*1127)/100); }
@@ -119,18 +119,18 @@ MENU(menu_postproc, P99_PROTECT({ \
 }))
 
 MENU(menu_audio, P99_PROTECT({ \
-    { "Down-sampling",      OPT_AVCONFIG_SELECTION, { .sel = { &tc.audio_dw_sampl, OPT_WRAP, SETTING_ITEM(audio_dw_sampl_desc) } } },
-    { "Swap left/right",    OPT_AVCONFIG_SELECTION, { .sel = { &tc.audio_swap_lr,  OPT_WRAP, SETTING_ITEM(off_on_desc) } } },
-    { "Use ext. MCLK",      OPT_AVCONFIG_SELECTION, { .sel = { &tc.audio_ext_mclk, OPT_WRAP, SETTING_ITEM(off_on_desc) } } },
+    { LNG("Down-sampling","Down-sampling"),      OPT_AVCONFIG_SELECTION, { .sel = { &tc.audio_dw_sampl, OPT_WRAP, SETTING_ITEM(audio_dw_sampl_desc) } } },
+    { LNG("Swap left/right","Swap left/right"),    OPT_AVCONFIG_SELECTION, { .sel = { &tc.audio_swap_lr,  OPT_WRAP, SETTING_ITEM(off_on_desc) } } },
+    { LNG("Use ext. MCLK","Use ext. MCLK"),      OPT_AVCONFIG_SELECTION, { .sel = { &tc.audio_ext_mclk, OPT_WRAP, SETTING_ITEM(off_on_desc) } } },
 }))
 
 MENU(menu_main, P99_PROTECT({ \
-    { "Audio options  >",   OPT_SUBMENU,            { .sub = { &menu_audio, NULL } } }, \
     { LNG("Video in proc  >","ﾀｲｵｳｴｲｿﾞｳ     >"),   OPT_SUBMENU,            { .sub = { &menu_vinputproc, NULL } } },
     { LNG("Sampling opt.  >","ｻﾝﾌﾟﾘﾝｸﾞｵﾌﾟｼｮﾝ>"), OPT_SUBMENU,            { .sub = { &menu_sampling, NULL } } },
     { LNG("Sync opt.      >","ﾄﾞｳｷｵﾌﾟｼｮﾝ    >"),   OPT_SUBMENU,            { .sub = { &menu_sync, NULL } } },
     { LNG("Output opt.    >","ｼｭﾂﾘｮｸｵﾌﾟｼｮﾝ  >"),  OPT_SUBMENU,            { .sub = { &menu_output, NULL } } },
     { LNG("Post-proc.     >","ｱﾄｼｮﾘ         >"),     OPT_SUBMENU,            { .sub = { &menu_postproc, NULL } } },
+    { LNG("Audio options  >","Audio options  >"),   OPT_SUBMENU,            { .sub = { &menu_audio, NULL } } }, \
     { LNG("<Fw. update    >","<ﾌｧｰﾑｳｪｱｱｯﾌﾟ  >"),  OPT_FUNC_CALL,          { .fun = { fw_update, LNG("OK - pls restart","OK - ｻｲｷﾄﾞｳｼﾃｸﾀﾞｻｲ"), LNG("failed","ｼｯﾊﾟｲ") } } },
     { LNG("<Reset settings>","<ｾｯﾃｲｵｼｮｷｶ    >"),   OPT_FUNC_CALL,          { .fun = { set_default_avconfig, LNG("Reset done","ｼｮｷｶｽﾐ"), "" } } },
     { LNG("<Save settings >","<ｾｯﾃｲｵﾎｿﾞﾝ    >"),   OPT_FUNC_CALL,          { .fun = { write_userdata, LNG("Saved","ﾎｿﾞﾝｽﾐ"), LNG("failed","ｼｯﾊﾟｲ") } } },
