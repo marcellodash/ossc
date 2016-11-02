@@ -59,7 +59,13 @@ add_fileset_file timescale.v VERILOG PATH timescale.v
 # 
 # parameters
 # 
-
+add_parameter always_drive_io INTEGER 1
+set_parameter_property always_drive_io DEFAULT_VALUE 0
+set_parameter_property always_drive_io DISPLAY_NAME "Always drive IO lines (no tristate)"
+set_parameter_property always_drive_io DISPLAY_HINT boolean
+set_parameter_property always_drive_io TYPE INTEGER
+set_parameter_property always_drive_io UNITS None
+set_parameter_property always_drive_io HDL_PARAMETER true
 
 # 
 # display items
@@ -109,6 +115,7 @@ set_interface_property export SVD_ADDRESS_GROUP ""
 
 add_interface_port export scl_pad_io export Bidir 1
 add_interface_port export sda_pad_io export Bidir 1
+add_interface_port export spi_miso_pad_i export Input 1
 
 
 # 

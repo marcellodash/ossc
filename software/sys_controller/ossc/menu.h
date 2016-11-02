@@ -61,7 +61,8 @@ typedef struct {
 
 typedef struct {
     func_call f;
-    char *text_success;
+    const char *text_success;
+    const char *text_failure;
 } opt_func_call;
 
 typedef struct menustruct menu_t;
@@ -72,7 +73,7 @@ typedef struct {
 } opt_submenu;
 
 typedef struct {
-    char *name;
+    const char *name;
     menuitem_type type;
     union {
         opt_avconfig_selection sel;
