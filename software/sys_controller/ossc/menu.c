@@ -130,10 +130,10 @@ MENU(menu_main, P99_PROTECT({ \
     { LNG("Sync opt.      >","ﾄﾞｳｷｵﾌﾟｼｮﾝ    >"),   OPT_SUBMENU,            { .sub = { &menu_sync, NULL } } },
     { LNG("Output opt.    >","ｼｭﾂﾘｮｸｵﾌﾟｼｮﾝ  >"),  OPT_SUBMENU,            { .sub = { &menu_output, NULL } } },
     { LNG("Post-proc.     >","ｱﾄｼｮﾘ         >"),     OPT_SUBMENU,            { .sub = { &menu_postproc, NULL } } },
-    { LNG("Audio options  >","Audio options  >"),   OPT_SUBMENU,            { .sub = { &menu_audio, NULL } } }, \
-    { LNG("<Fw. update    >","<ﾌｧｰﾑｳｪｱｱｯﾌﾟ  >"),  OPT_FUNC_CALL,          { .fun = { fw_update, LNG("OK - pls restart","OK - ｻｲｷﾄﾞｳｼﾃｸﾀﾞｻｲ"), LNG("failed","ｼｯﾊﾟｲ") } } },
-    { LNG("<Reset settings>","<ｾｯﾃｲｵｼｮｷｶ    >"),   OPT_FUNC_CALL,          { .fun = { set_default_avconfig, LNG("Reset done","ｼｮｷｶｽﾐ"), "" } } },
+    { LNG("Audio options  >","Audio options  >"),   OPT_SUBMENU,            { .sub = { &menu_audio, NULL } } },
     { LNG("<Save settings >","<ｾｯﾃｲｵﾎｿﾞﾝ    >"),   OPT_FUNC_CALL,          { .fun = { write_userdata, LNG("Saved","ﾎｿﾞﾝｽﾐ"), LNG("failed","ｼｯﾊﾟｲ") } } },
+    { LNG("<Reset settings>","<ｾｯﾃｲｵｼｮｷｶ    >"),   OPT_FUNC_CALL,          { .fun = { set_default_avconfig, LNG("Reset done","ｼｮｷｶｽﾐ"), "" } } },
+    { LNG("<Fw. update    >","<ﾌｧｰﾑｳｪｱｱｯﾌﾟ  >"),  OPT_FUNC_CALL,          { .fun = { fw_update, LNG("OK - pls restart","OK - ｻｲｷﾄﾞｳｼﾃｸﾀﾞｻｲ"), LNG("failed","ｼｯﾊﾟｲ") } } },
 }))
 
 // Max 3 levels currently

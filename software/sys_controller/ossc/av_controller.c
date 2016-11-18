@@ -83,16 +83,33 @@ void lcd_write_status() {
     lcd_write((char*)&row1, (char*)&row2);
 }
 
-void SetupAudio(tx_mode_t mode)
+
+inline void SetupAudio(tx_mode_t mode)
 {
     // shut down audio-tx before setting new config (recommended for changing audio-tx config)
     DisableAudioOutput();
     EnableAudioInfoFrame(FALSE, NULL);
 
     if (tc.tx_mode == TX_HDMI) {
-        alt_u32 pclk = (TVP_EXTCLK_HZ/cm.clkcnt)*video_modes[cm.id].h_total;
-        EnableAudioOutput4OSSC(pclk,tc.audio_ext_mclk,tc.audio_dw_sampl,tc.audio_swap_lr);
-        HDMITX_SetAudioInfoFrame((BYTE) tc.audio_dw_sampl);
+        alt_u32 pclk_out = (TVP_EXTCLK_HZ/cm.clkcnt)*video_modes[cm.id].h_total;
+        // TODO: check pixel repetition
+        if (video_modes[cm.id].flags & MODE_L2ENABLE)
+            pclk_out *= 2;
+        else if (video_modes[cm.id].flags & (MODE_L3_MODE0|MODE_L3_MODE1|MODE_L3_MODE2|MODE_L3_MODE3))
+            pclk_out *= 3;
+
+        printf("PCLK_out: %luHz\n", pclk_out);
+        EnableAudioOutput4OSSC(pclk_out,tc.audio_ext_mclk,tc.audio_dw_sampl,tc.audio_swap_lr);
+        HDMITX_SetAudioInfoFrame((BYTE)tc.audio_dw_sampl);
+#ifdef DEBUG
+        Switch_HDMITX_Bank(1);
+        usleep(1000);
+        alt_u32 cts = 0;
+        cts |= read_it2(0x35) >> 4;
+        cts |= read_it2(0x36) << 4;
+        cts |= read_it2(0x37) << 12;
+        printf("CTS: %lu\n", cts);
+#endif
     }
 }
 
