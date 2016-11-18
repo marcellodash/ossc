@@ -93,12 +93,12 @@ OBJ_DIR := ./obj
 
 # This following VERSION comment indicates the version of the tool used to 
 # generate this makefile. A makefile variable is provided for VERSION as well. 
-# ACDS_VERSION: 16.0
-ACDS_VERSION := 16.0
+# ACDS_VERSION: 15.1
+ACDS_VERSION := 15.1
 
 # This following BUILD_NUMBER comment indicates the build number of the tool 
 # used to generate this makefile. 
-# BUILD_NUMBER: 211
+# BUILD_NUMBER: 185
 
 SETTINGS_FILE := settings.bsp
 SOPC_FILE := ../../sys.sopcinfo
@@ -140,17 +140,6 @@ BSP_CFLAGS_WARNINGS = -Wall
 
 # C compiler command. 
 CC = nios2-elf-gcc -xc
-
-# C/C++ compiler to generate (do not generate) GP-relative accesses. 'none' 
-# tells the compilter not to generate GP-relative accesses. 'local' will 
-# generate GP-relative accesses for small data objects that are not external, 
-# weak, or uninitialized common symbols. Also use GP-relative addressing for 
-# objects that have been explicitly placed in a small data section via a 
-# section attribute. provides the default set of debug symbols typically 
-# required to debug a typical application. 'global' is same as 'local' but also 
-# generate GP-relative accesses for small data objects that are external, weak, 
-# or common. 
-CFLAGS_MGPOPT = -mgpopt=local
 
 # C++ compiler command. 
 CXX = nios2-elf-gcc -xc++
@@ -213,13 +202,6 @@ GENERATED_C_LIB_SRCS += alt_sys_init.c
 # used to build each file.
 #-------------------------------------------------------------------------------
 
-# altera_up_sd_card_avalon_interface_mod_driver sources root 
-Altera_UP_SD_Card_Avalon_Interface_mod_driver_SRCS_ROOT := drivers
-
-# altera_up_sd_card_avalon_interface_mod_driver sources 
-Altera_UP_SD_Card_Avalon_Interface_mod_driver_C_LIB_SRCS := \
-	$(Altera_UP_SD_Card_Avalon_Interface_mod_driver_SRCS_ROOT)/src/Altera_UP_SD_Card_Avalon_Interface_mod.c
-
 # altera_avalon_jtag_uart_driver sources root 
 altera_avalon_jtag_uart_driver_SRCS_ROOT := drivers
 
@@ -235,6 +217,15 @@ altera_avalon_jtag_uart_driver_C_LIB_SRCS := \
 altera_avalon_pio_driver_SRCS_ROOT := drivers
 
 # altera_avalon_pio_driver sources 
+# altera_avalon_timer_driver sources root 
+altera_avalon_timer_driver_SRCS_ROOT := drivers
+
+# altera_avalon_timer_driver sources 
+altera_avalon_timer_driver_C_LIB_SRCS := \
+	$(altera_avalon_timer_driver_SRCS_ROOT)/src/altera_avalon_timer_sc.c \
+	$(altera_avalon_timer_driver_SRCS_ROOT)/src/altera_avalon_timer_ts.c \
+	$(altera_avalon_timer_driver_SRCS_ROOT)/src/altera_avalon_timer_vars.c
+
 # altera_epcq_controller_mod_driver sources root 
 altera_epcq_controller_mod_driver_SRCS_ROOT := drivers
 
@@ -356,8 +347,8 @@ nios2_hw_crc32_driver_C_LIB_SRCS := \
 
 # Assemble all component C source files 
 COMPONENT_C_LIB_SRCS += \
-	$(Altera_UP_SD_Card_Avalon_Interface_mod_driver_C_LIB_SRCS) \
 	$(altera_avalon_jtag_uart_driver_C_LIB_SRCS) \
+	$(altera_avalon_timer_driver_C_LIB_SRCS) \
 	$(altera_epcq_controller_mod_driver_C_LIB_SRCS) \
 	$(altera_nios2_gen2_hal_driver_C_LIB_SRCS) \
 	$(hal_C_LIB_SRCS) \
@@ -413,7 +404,6 @@ BSP_CFLAGS += \
   $(BSP_CFLAGS_DEBUG) \
   $(BSP_CFLAGS_WARNINGS) \
   $(BSP_CFLAGS_USER_FLAGS) \
-  $(CFLAGS_MGPOPT) \
   $(ALT_CFLAGS) \
   $(CFLAGS) 
 

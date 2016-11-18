@@ -20,11 +20,16 @@
 #ifndef SYSCONFIG_H_
 #define SYSCONFIG_H_
 
+//#define I2C_DEBUG
+#define I2CA_BASE I2C_OPENCORES_0_BASE
+#define SD_SPI_BASE I2C_OPENCORES_1_BASE
+
 #ifndef DEBUG
 #define OS_PRINTF(...)
 #define ErrorF(...)
 #define printf(...)
 #else
+#include <stdio.h>
 #define OS_PRINTF printf
 #define ErrorF printf
 // use reduced printf

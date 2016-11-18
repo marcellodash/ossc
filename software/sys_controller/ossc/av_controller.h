@@ -21,10 +21,19 @@
 #define AV_CONTROLLER_H_
 
 #include "avconfig.h"
+#include "sysconfig.h"
 
 #define HDMITX_MODE_MASK        0x00040000
 
-static const char *avinput_str[] = { "-", "AV1: RGBS", "AV1: RGsB", "AV1: YPbPr", "AV2: YPbPr", "AV2: RGsB", "AV3: RGBHV", "AV3: RGBS", "AV3: RGsB", "AV3: YPbPr" };
+//sys_ctrl bits
+#define SD_SPI_SS_N (1<<7)
+#define LCD_CS_N    (1<<6)
+#define LCD_RS      (1<<5)
+#define LCD_BL      (1<<4)
+#define VIDGEN_OFF  (1<<1)
+#define AV_RESET_N  (1<<0)
+
+static const char *avinput_str[] = { "Test pattern", "AV1: RGBS", "AV1: RGsB", "AV1: YPbPr", "AV2: YPbPr", "AV2: RGsB", "AV3: RGBHV", "AV3: RGBS", "AV3: RGsB", "AV3: YPbPr" };
 
 typedef enum {
     AV_KEEP         = 0,
@@ -67,7 +76,10 @@ typedef struct {
     avconfig_t cc;
 } avmode_t;
 
-void lcd_write_menu();
-void lcd_write_status();
+inline void lcd_write_menu();
+inline void lcd_write_status();
+
+void vm_display(alt_u8 code);
+void vm_tweak(alt_u16 v);
 
 #endif

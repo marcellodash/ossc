@@ -79,6 +79,13 @@
       <File Name="sys_controller/ossc/userdata.h"/>
       <File Name="sys_controller/ossc/userdata.c"/>
     </VirtualDirectory>
+    <VirtualDirectory Name="ulibSD">
+      <File Name="sys_controller/ulibSD/integer.h"/>
+      <File Name="sys_controller/ulibSD/sd_io.c"/>
+      <File Name="sys_controller/ulibSD/sd_io.h"/>
+      <File Name="sys_controller/ulibSD/spi_io.h"/>
+      <File Name="sys_controller/ulibSD/spi_io.c"/>
+    </VirtualDirectory>
   </VirtualDirectory>
   <Description/>
   <Dependencies/>
@@ -101,6 +108,7 @@
       <Linker Options="" Required="yes"/>
       <ResourceCompiler Options="" Required="no"/>
       <General OutputFile="" IntermediateDirectory="./Debug" Command="nios2-download -g --accept-bad-sysid sys_controller.elf &amp;&amp; nios2-terminal" CommandArguments="" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="$(ProjectPath)/sys_controller" PauseExecWhenProcTerminates="yes" IsGUIProgram="no" IsEnabled="yes"/>
+      <BuildSystem Name="Default"/>
       <Environment EnvVarSetName="&lt;Use Defaults&gt;" DbgSetName="&lt;Use Defaults&gt;">
         <![CDATA[]]>
       </Environment>
@@ -112,6 +120,7 @@
       <PreBuild/>
       <PostBuild/>
       <CustomBuild Enabled="yes">
+        <Target Name="diy-audio-debug">make APP_CFLAGS_DEFINED_SYMBOLS="-DDEBUG -DDIY_AUDIO"</Target>
         <RebuildCommand/>
         <CleanCommand>make clean</CleanCommand>
         <BuildCommand>make APP_CFLAGS_DEFINED_SYMBOLS="-DDEBUG"</BuildCommand>
@@ -139,6 +148,7 @@
       <Linker Options="-O2" Required="yes"/>
       <ResourceCompiler Options="" Required="no"/>
       <General OutputFile="" IntermediateDirectory="./Release" Command="nios2-download -g --accept-bad-sysid sys_controller.elf" CommandArguments="" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="$(ProjectPath)/sys_controller" PauseExecWhenProcTerminates="no" IsGUIProgram="no" IsEnabled="yes"/>
+      <BuildSystem Name="Default"/>
       <Environment EnvVarSetName="&lt;Use Defaults&gt;" DbgSetName="&lt;Use Defaults&gt;">
         <![CDATA[]]>
       </Environment>
@@ -150,7 +160,12 @@
       <PreBuild/>
       <PostBuild/>
       <CustomBuild Enabled="yes">
-        <Target Name="compile_image">make mem_init_generate</Target>
+        <Target Name="compile_image_jp">make clean &amp;&amp; iconv -f UTF-8 -t SHIFT-JIS ossc/menu.c &gt; ossc/menu_sjis.c &amp;&amp; make OSDLANG=JP mem_init_generate</Target>
+        <Target Name="compile_image_aud_jp">make clean &amp;&amp; iconv -f UTF-8 -t SHIFT-JIS ossc/menu.c &gt; ossc/menu_sjis.c &amp;&amp; make DIY_AUDIO=y OSDLANG=JP mem_init_generate</Target>
+        <Target Name="compile_image_aud">make clean &amp;&amp; make DIY_AUDIO=y mem_init_generate</Target>
+        <Target Name="compile_image">make clean &amp;&amp; make mem_init_generate</Target>
+        <Target Name="Build_jp">iconv -f UTF-8 -t SHIFT-JIS ossc/menu.c &gt; ossc/menu_sjis.c &amp;&amp; make OSDLANG=JP</Target>
+        <Target Name="Build_diy-audio">make DIY_AUDIO=y</Target>
         <RebuildCommand/>
         <CleanCommand>make clean</CleanCommand>
         <BuildCommand>make</BuildCommand>

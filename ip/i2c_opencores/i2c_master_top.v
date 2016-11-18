@@ -75,10 +75,11 @@
 module i2c_master_top(
 	wb_clk_i, wb_rst_i, arst_i, wb_adr_i, wb_dat_i, wb_dat_o,
 	wb_we_i, wb_stb_i, wb_cyc_i, wb_ack_o, wb_inta_o,
-	scl_pad_i, scl_pad_o, scl_padoen_o, sda_pad_i, sda_pad_o, sda_padoen_o );
+	scl_pad_i, scl_pad_o, scl_padoen_o, sda_pad_i, sda_pad_o, sda_padoen_o, spi_miso_pad_i );
 
 	// parameters
 	parameter ARST_LVL = 1'b0; // asynchronous reset level
+	parameter dedicated_spi = 0;
 
 	//
 	// inputs & outputs
@@ -112,7 +113,9 @@ module i2c_master_top(
 	output sda_pad_o;       // SDA-line output (always 1'b0)
 	output sda_padoen_o;    // SDA-line output enable (active low)
 
-
+    // extra SPI MISO line
+    input spi_miso_pad_i;
+    
 	//
 	// variable declarations
 	//
@@ -230,7 +233,7 @@ module i2c_master_top(
 	assign ien = ctr[6];
 
 	// hookup byte controller block
-	i2c_master_byte_ctrl byte_controller (
+	i2c_master_byte_ctrl #(.dedicated_spi(dedicated_spi)) byte_controller (
 		.clk      ( wb_clk_i     ),
 		.rst      ( wb_rst_i     ),
 		.nReset   ( rst_i        ),
@@ -253,7 +256,8 @@ module i2c_master_top(
 		.scl_oen  ( scl_padoen_o ),
 		.sda_i    ( sda_pad_i    ),
 		.sda_o    ( sda_pad_o    ),
-		.sda_oen  ( sda_padoen_o )
+		.sda_oen  ( sda_padoen_o ),
+        .spi_miso ( spi_miso_pad_i )
 	);
 
 	// status register block + interrupt request signal

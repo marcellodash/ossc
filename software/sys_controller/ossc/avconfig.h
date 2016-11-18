@@ -21,6 +21,7 @@
 #define AVCONFIG_H_
 
 #include "alt_types.h"
+#include "tvp7002.h"
 
 #define SCANLINESTR_MAX     15
 #define HV_MASK_MAX         63
@@ -29,10 +30,11 @@
 #define SYNC_VTH_MAX        31
 #define VSYNC_THOLD_MIN     10
 #define VSYNC_THOLD_MAX     200
+#define SD_SYNC_WIN_MAX     255
 #define PLL_COAST_MAX       5
 
 #define SL_MODE_MAX         2
-#define SL_TYPE_MAX         1
+#define SL_TYPE_MAX         2
 #define LM_MODE_MAX         1
 
 typedef struct {
@@ -49,13 +51,22 @@ typedef struct {
     alt_u8 sampler_phase;
     alt_u8 ypbpr_cs;
     alt_u8 sync_vth;
+    alt_u8 linelen_tol;
     alt_u8 vsync_thold;
     alt_u8 sync_lpf;
     alt_u8 video_lpf;
-    alt_u8 en_alc;
     alt_u8 pre_coast;
     alt_u8 post_coast;
-} avconfig_t;
+#ifdef DIY_AUDIO
+    alt_u8 audio_dw_sampl;
+    alt_u8 audio_swap_lr;
+    alt_u8 audio_ext_mclk;
+#endif
+    alt_u8 edtv_l2x;
+    alt_u8 interlace_pt;
+    alt_u8 def_input;
+    color_setup_t col;
+} __attribute__((packed)) avconfig_t;
 
 int set_default_avconfig();
 

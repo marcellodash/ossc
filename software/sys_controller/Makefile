@@ -158,8 +158,14 @@ C_SRCS += ossc/av_controller.c
 C_SRCS += ossc/avconfig.c
 C_SRCS += ossc/controls.c
 C_SRCS += ossc/firmware.c
+ifeq ($(OSDLANG),JP)
+C_SRCS += ossc/menu_sjis.c
+else
 C_SRCS += ossc/menu.c
+endif
 C_SRCS += ossc/userdata.c
+C_SRCS += ulibSD/sd_io.c
+C_SRCS += ulibSD/spi_io.c
 CXX_SRCS :=
 ASM_SRCS :=
 
@@ -178,6 +184,12 @@ CREATE_LINKER_MAP := 1
 
 # Common arguments for ALT_CFLAGSs
 APP_CFLAGS_DEFINED_SYMBOLS := -DNO_I2C_DEBUG -DNO_DEBUG
+ifeq ($(DIY_AUDIO),y)
+APP_CFLAGS_DEFINED_SYMBOLS += -DDIY_AUDIO
+endif
+ifeq ($(OSDLANG),JP)
+APP_CFLAGS_DEFINED_SYMBOLS += -DOSDLANG_JP
+endif
 APP_CFLAGS_UNDEFINED_SYMBOLS :=
 APP_CFLAGS_OPTIMIZATION := -Os
 APP_CFLAGS_DEBUG_LEVEL :=
@@ -202,6 +214,7 @@ APP_INCLUDE_DIRS += tvp7002
 APP_INCLUDE_DIRS += ths7353
 APP_INCLUDE_DIRS += spi_charlcd
 APP_INCLUDE_DIRS += memory
+APP_INCLUDE_DIRS += ulibSD
 APP_INCLUDE_DIRS += ossc
 APP_LIBRARY_DIRS :=
 APP_LIBRARY_NAMES :=
@@ -951,7 +964,7 @@ clean : clean_elf_derived_files
 endif
 
 clean :
-	@$(RM) -r $(ELF) $(OBJDUMP_NAME) $(LINKER_MAP_NAME) $(OBJ_ROOT_DIR) $(RUNTIME_ROOT_DIR) $(FORCE_REBUILD_DEP_LIST)
+	@$(RM) -r $(ELF) $(OBJDUMP_NAME) $(LINKER_MAP_NAME) $(OBJ_ROOT_DIR) $(RUNTIME_ROOT_DIR) $(FORCE_REBUILD_DEP_LIST) ossc/menu_sjis.c
 	@$(ECHO) [$(APP_NAME) clean complete]
 
 # Clean just the BSP.
