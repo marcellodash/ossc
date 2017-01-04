@@ -309,8 +309,9 @@
       <ResourceCompiler Options="" Required="no"/>
       <General OutputFile="" IntermediateDirectory="./Release" Command="" CommandArguments="" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="$(IntermediateDirectory)" PauseExecWhenProcTerminates="yes" IsGUIProgram="no" IsEnabled="yes"/>
       <BuildSystem Name="Default"/>
-      <Environment EnvVarSetName="&lt;Use Defaults&gt;" DbgSetName="&lt;Use Defaults&gt;">
-        <![CDATA[]]>
+      <Environment EnvVarSetName="NIOS2" DbgSetName="&lt;Use Defaults&gt;">
+        <![CDATA[PWD=F:\Documents\Workspaces\GitHub\OSSC\OSSC-rel\software\sys_controller
+CWD=F:\Documents\Workspaces\GitHub\OSSC\OSSC-rel\software\sys_controller]]>
       </Environment>
       <Debugger IsRemote="no" RemoteHostName="" RemoteHostPort="" DebuggerPath="" IsExtended="no">
         <DebuggerSearchPaths/>

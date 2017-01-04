@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <EnsembleReport name="sys" kind="sys" version="1.0" fabric="QSYS">
- <!-- Format version 15.1 185 (Future versions may contain additional information.) -->
- <!-- 2016.10.30.20:11:06 -->
+ <!-- Format version 15.1 193 (Future versions may contain additional information.) -->
+ <!-- 2016.11.18.09:44:46 -->
  <!-- A collection of modules and connections -->
  <parameter name="AUTO_GENERATION_ID">
   <type>java.lang.Integer</type>
-  <value>1477851066</value>
+  <value>1479458686</value>
   <derived>false</derived>
   <enabled>true</enabled>
   <visible>false</visible>
@@ -14996,6 +14996,6 @@ parameters are a RESULT of the module parameters. -->
   <displayName>Reset Connection</displayName>
   <version>15.1</version>
  </plugin>
- <reportVersion>15.1 185</reportVersion>
+ <reportVersion>15.1 193</reportVersion>
  <uniqueIdentifier></uniqueIdentifier>
 </EnsembleReport>

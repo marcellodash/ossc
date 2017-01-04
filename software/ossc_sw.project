@@ -149,8 +149,9 @@
       <ResourceCompiler Options="" Required="no"/>
       <General OutputFile="" IntermediateDirectory="./Release" Command="nios2-download -g --accept-bad-sysid sys_controller.elf" CommandArguments="" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="$(ProjectPath)/sys_controller" PauseExecWhenProcTerminates="no" IsGUIProgram="no" IsEnabled="yes"/>
       <BuildSystem Name="Default"/>
-      <Environment EnvVarSetName="&lt;Use Defaults&gt;" DbgSetName="&lt;Use Defaults&gt;">
-        <![CDATA[]]>
+      <Environment EnvVarSetName="NIOS2" DbgSetName="&lt;Use Defaults&gt;">
+        <![CDATA[PWD=F:\Documents\Workspaces\GitHub\OSSC\OSSC-rel\software\sys_controller
+CWD=F:\Documents\Workspaces\GitHub\OSSC\OSSC-rel\software\sys_controller]]>
       </Environment>
       <Debugger IsRemote="no" RemoteHostName="" RemoteHostPort="" DebuggerPath="" IsExtended="no">
         <DebuggerSearchPaths/>
@@ -164,11 +165,12 @@
         <Target Name="compile_image_aud_jp">make clean &amp;&amp; iconv -f UTF-8 -t SHIFT-JIS ossc/menu.c &gt; ossc/menu_sjis.c &amp;&amp; make DIY_AUDIO=y OSDLANG=JP mem_init_generate</Target>
         <Target Name="compile_image_aud">make clean &amp;&amp; make DIY_AUDIO=y mem_init_generate</Target>
         <Target Name="compile_image">make clean &amp;&amp; make mem_init_generate</Target>
+        <Target Name="Build_release">make</Target>
         <Target Name="Build_jp">iconv -f UTF-8 -t SHIFT-JIS ossc/menu.c &gt; ossc/menu_sjis.c &amp;&amp; make OSDLANG=JP</Target>
         <Target Name="Build_diy-audio">make DIY_AUDIO=y</Target>
         <RebuildCommand/>
         <CleanCommand>make clean</CleanCommand>
-        <BuildCommand>make</BuildCommand>
+        <BuildCommand>make DIY_AUDIO=y</BuildCommand>
         <PreprocessFileCommand/>
         <SingleFileCommand/>
         <MakefileGenerationCommand/>
