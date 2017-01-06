@@ -153,10 +153,10 @@ assign pclk_out_3x_h4x = pclk_3x_h4x;
 assign pclk_out_3x_h5x = pclk_3x_h5x;
 
 //Scanline generation
-function [8:0] apply_scanlines;
+function [7:0] apply_scanlines;
     input [1:0] mode;
-    input [8:0] data;
-    input [8:0] str;
+    input [7:0] data;
+    input [7:0] str;
     input [1:0] actid;
     input [1:0] lineid;
     input pixid;
@@ -174,9 +174,9 @@ function [8:0] apply_scanlines;
     endfunction
 
 //Border masking
-function [8:0] apply_mask;
+function [7:0] apply_mask;
     input enable;
-    input [8:0] data;
+    input [7:0] data;
     input [11:0] hoffset;
     input [11:0] hstart;
     input [11:0] hend;
@@ -341,7 +341,7 @@ pll_3x_lowfreq pll_linetriple_lowfreq (
 
 //TODO: add secondary buffers for interlaced signals with alternative field order
 linebuf linebuf_rgb (
-    .data ( {R_1x, G_1x, B_1x} ), //or *_in?
+    .data ( {R_1x, G_1x, B_1x} ),
     .rdaddress ( linebuf_hoffset + (~line_idx << 11) ),
     .rdclock ( linebuf_rdclock ),
     .wraddress ( hcnt_1x + (line_idx << 11) ),
@@ -469,7 +469,7 @@ begin
                     line_idx <= line_idx ^ 1'b1;
                     vcnt_1x <= vcnt_1x + 1'b1;
                     vcnt_1x_tvp <= vcnt_1x_tvp + 1'b1;
-                    FID_1x <= fpga_vsyncgen[`VSYNCGEN_CHOPMID_BIT] ? 0 : (fpga_vsyncgen[`VSYNCGEN_GENMID_BIT] ? (vcnt_1x > (V_BACKPORCH + V_ACTIVE)) : FID_in);
+                    FID_1x <= fpga_vsyncgen[`VSYNCGEN_CHOPMID_BIT] ? 1'b0 : (fpga_vsyncgen[`VSYNCGEN_GENMID_BIT] ? (vcnt_1x > (V_BACKPORCH + V_ACTIVE)) : FID_in);
                 end
             else
                 begin

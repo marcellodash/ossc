@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <EnsembleReport name="sys" kind="sys" version="1.0" fabric="QSYS">
  <!-- Format version 15.1 193 (Future versions may contain additional information.) -->
- <!-- 2016.11.18.09:44:46 -->
+ <!-- 2017.01.06.08:23:29 -->
  <!-- A collection of modules and connections -->
  <parameter name="AUTO_GENERATION_ID">
   <type>java.lang.Integer</type>
-  <value>1479458686</value>
+  <value>1483687408</value>
   <derived>false</derived>
   <enabled>true</enabled>
   <visible>false</visible>
@@ -468,7 +468,7 @@ parameters are a RESULT of the module parameters. -->
  <module
    name="epcq_controller_0"
    kind="altera_epcq_controller_mod"
-   version="15.1"
+   version="16.1"
    path="epcq_controller_0">
   <!-- Describes a single module. Module parameters are
 the requested settings for a module instance. -->
@@ -1609,7 +1609,7 @@ parameters are a RESULT of the module parameters. -->
  <module
    name="i2c_opencores_0"
    kind="i2c_opencores"
-   version="13.0"
+   version="16.1"
    path="i2c_opencores_0">
   <!-- Describes a single module. Module parameters are
 the requested settings for a module instance. -->
@@ -2236,7 +2236,7 @@ parameters are a RESULT of the module parameters. -->
  <module
    name="i2c_opencores_1"
    kind="i2c_opencores"
-   version="13.0"
+   version="16.1"
    path="i2c_opencores_1">
   <!-- Describes a single module. Module parameters are
 the requested settings for a module instance. -->
@@ -3610,7 +3610,7 @@ parameters are a RESULT of the module parameters. -->
  <module
    name="nios2_hw_crc32_0"
    kind="nios2_hw_crc32"
-   version="1.0"
+   version="16.1"
    path="nios2_hw_crc32_0">
   <!-- Describes a single module. Module parameters are
 the requested settings for a module instance. -->
@@ -7403,7 +7403,7 @@ parameters are a RESULT of the module parameters. -->
  <module
    name="nios_custom_instr_endianconverter_0"
    kind="altera_nios_custom_instr_endianconverter"
-   version="100.99.98.97"
+   version="16.1"
    path="nios_custom_instr_endianconverter_0">
   <!-- Describes a single module. Module parameters are
 the requested settings for a module instance. -->
@@ -14802,7 +14802,7 @@ parameters are a RESULT of the module parameters. -->
   <type>com.altera.entityinterfaces.IElementClass</type>
   <subtype>com.altera.entityinterfaces.IModule</subtype>
   <displayName>Altera Serial Flash Controller</displayName>
-  <version>15.1</version>
+  <version>16.1</version>
  </plugin>
  <plugin>
   <instanceCount>12</instanceCount>
@@ -14842,7 +14842,7 @@ parameters are a RESULT of the module parameters. -->
   <type>com.altera.entityinterfaces.IElementClass</type>
   <subtype>com.altera.entityinterfaces.IModule</subtype>
   <displayName>I2C Master (opencores.org)</displayName>
-  <version>13.0</version>
+  <version>16.1</version>
  </plugin>
  <plugin>
   <instanceCount>7</instanceCount>
@@ -14866,7 +14866,7 @@ parameters are a RESULT of the module parameters. -->
   <type>com.altera.entityinterfaces.IElementClass</type>
   <subtype>com.altera.entityinterfaces.IModule</subtype>
   <displayName>nios2_hw_crc32</displayName>
-  <version>1.0</version>
+  <version>16.1</version>
  </plugin>
  <plugin>
   <instanceCount>3</instanceCount>
@@ -14930,7 +14930,7 @@ parameters are a RESULT of the module parameters. -->
   <type>com.altera.entityinterfaces.IElementClass</type>
   <subtype>com.altera.entityinterfaces.IModule</subtype>
   <displayName>Endian Converter</displayName>
-  <version>100.99.98.97</version>
+  <version>16.1</version>
  </plugin>
  <plugin>
   <instanceCount>1</instanceCount>
