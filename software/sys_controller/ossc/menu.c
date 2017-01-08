@@ -163,7 +163,7 @@ void display_menu(alt_u8 forcedisp)
         }
     }
 
-    if (!forcedisp && (code == NO_ACTION))
+    if (!forcedisp && !remote_code)
         return;
 
     type = navi[navlvl].m->items[navi[navlvl].mp].type;

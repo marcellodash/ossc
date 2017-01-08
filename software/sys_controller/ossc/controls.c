@@ -100,7 +100,7 @@ void setup_rc()
             usleep(WAITLOOP_SLEEP_US);
         }
     }
-    write_userdata(RC_CONFIG_SLOT);
+    write_userdata(INIT_CONFIG_SLOT);
 }
 
 void parse_control()
@@ -160,12 +160,12 @@ void parse_control()
         case RC_PHASE_MINUS: tc.sampler_phase = tc.sampler_phase ? (tc.sampler_phase - 1) : SAMPLER_PHASE_MAX; break;
         case RC_PROF_HOTKEY:
             strncpy(menu_row1, "Profile load:", LCD_ROW_LEN+1);
-            strncpy(menu_row2, "press 0-9", LCD_ROW_LEN+1);
+            strncpy(menu_row2, "(press 0-9)", LCD_ROW_LEN+1);
             lcd_write_menu();
 
             while (1) {
                 btn_vec = IORD_ALTERA_AVALON_PIO_DATA(PIO_1_BASE) & RC_MASK;
-                for (i = RC_BTN1; i < REMOTE_MAX_KEYS; i++) {
+                for (i = RC_BTN1; i < RC_BACK; i++) {
                     if (btn_vec == rc_keymap[i])
                         break;
                 }
