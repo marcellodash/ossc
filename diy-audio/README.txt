@@ -1,3 +1,12 @@
+########################################################################
+# IMPORTANT NOTE:                                                      #
+#                                                                      #
+# This branch is not longer updated. marqs85 has included the firmware #
+# adaptations needed for this mod into the release branch. Hence I     #
+# started a new repository just for the AddOn-PCB.                     #
+# You can find it here: https://github.com/borti4938/Audio4OSSC        #
+########################################################################
+
 The OSSC does not output audio over HDMI or DVI-D, respectively. This add on captures the analoge audio you feed over the SCART or audio 3.5mm stereo jack. The audio signal is digitalize and put into the IT6613E over the I2S audio interface.
 
 Firmware
