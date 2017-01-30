@@ -162,15 +162,19 @@ CWD=F:\Documents\Workspaces\GitHub\OSSC\OSSC-rel\software\sys_controller]]>
       <PostBuild/>
       <CustomBuild Enabled="yes">
         <Target Name="compile_image_jp">make clean &amp;&amp; iconv -f UTF-8 -t SHIFT-JIS ossc/menu.c &gt; ossc/menu_sjis.c &amp;&amp; make OSDLANG=JP mem_init_generate</Target>
+        <Target Name="compile_image_aud_mclk">make clean &amp;&amp; make APP_CFLAGS_DEFINED_SYMBOLS="-DDIY_AUDIO -DEXT_MCLK" mem_init_generate
+</Target>
         <Target Name="compile_image_aud_jp">make clean &amp;&amp; iconv -f UTF-8 -t SHIFT-JIS ossc/menu.c &gt; ossc/menu_sjis.c &amp;&amp; make DIY_AUDIO=y OSDLANG=JP mem_init_generate</Target>
         <Target Name="compile_image_aud">make clean &amp;&amp; make DIY_AUDIO=y mem_init_generate</Target>
         <Target Name="compile_image">make clean &amp;&amp; make mem_init_generate</Target>
         <Target Name="Build_release">make</Target>
         <Target Name="Build_jp">iconv -f UTF-8 -t SHIFT-JIS ossc/menu.c &gt; ossc/menu_sjis.c &amp;&amp; make OSDLANG=JP</Target>
+        <Target Name="Build_diy_audio_mclk">make DIY_AUDIO=y EXT_MCLK=y
+</Target>
         <Target Name="Build_diy-audio">make DIY_AUDIO=y</Target>
         <RebuildCommand/>
         <CleanCommand>make clean</CleanCommand>
-        <BuildCommand>make DIY_AUDIO=y</BuildCommand>
+        <BuildCommand>make APP_CFLAGS_DEFINED_SYMBOLS="-DDIY_AUDIO -DEXT_MCLK"</BuildCommand>
         <PreprocessFileCommand/>
         <SingleFileCommand/>
         <MakefileGenerationCommand/>

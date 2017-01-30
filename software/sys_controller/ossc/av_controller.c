@@ -100,7 +100,11 @@ inline void SetupAudio(tx_mode_t mode)
             pclk_out *= 3;
 
         printf("PCLK_out: %luHz\n", pclk_out);
+#ifdef EXT_MCLK
+        EnableAudioOutput4OSSC(pclk_out, tc.audio_ext_mclk, tc.audio_dw_sampl, tc.audio_swap_lr);
+#else
         EnableAudioOutput4OSSC(pclk_out, tc.audio_dw_sampl, tc.audio_swap_lr);
+#endif
         HDMITX_SetAudioInfoFrame((BYTE)tc.audio_dw_sampl);
 #ifdef DEBUG
         Switch_HDMITX_Bank(1);
@@ -332,7 +336,11 @@ status_t get_status(tvp_input_t input, video_format format)
         (tc.interlace_pt != cm.cc.interlace_pt) ||
         update_cur_vm ||
 #endif
-        (tc.audio_swap_lr != cm.cc.audio_swap_lr))
+        (tc.audio_swap_lr != cm.cc.audio_swap_lr)
+#ifdef EXT_MCLK
+        || (tc.audio_ext_mclk != cm.cc.audio_ext_mclk)
+#endif
+       )
         SetupAudio(tc.tx_mode);
 #endif
 

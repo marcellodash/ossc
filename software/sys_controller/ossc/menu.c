@@ -119,11 +119,18 @@ MENU(menu_postproc, P99_PROTECT({ \
 }))
 
 #ifdef DIY_AUDIO
+#ifdef EXT_MCLK
 MENU(menu_audio, P99_PROTECT({ \
     { LNG("Down-sampling","Down-sampling"),      OPT_AVCONFIG_SELECTION, { .sel = { &tc.audio_dw_sampl, OPT_WRAP, SETTING_ITEM(audio_dw_sampl_desc) } } },
     { LNG("Swap left/right","Swap left/right"),    OPT_AVCONFIG_SELECTION, { .sel = { &tc.audio_swap_lr,  OPT_WRAP, SETTING_ITEM(off_on_desc) } } },
     { LNG("Use ext. MCLK","Use ext. MCLK"),      OPT_AVCONFIG_SELECTION, { .sel = { &tc.audio_ext_mclk, OPT_WRAP, SETTING_ITEM(off_on_desc) } } },
 }))
+#else
+MENU(menu_audio, P99_PROTECT({ \
+    { LNG("Down-sampling","Down-sampling"),      OPT_AVCONFIG_SELECTION, { .sel = { &tc.audio_dw_sampl, OPT_WRAP, SETTING_ITEM(audio_dw_sampl_desc) } } },
+    { LNG("Swap left/right","Swap left/right"),    OPT_AVCONFIG_SELECTION, { .sel = { &tc.audio_swap_lr,  OPT_WRAP, SETTING_ITEM(off_on_desc) } } },
+}))
+#endif
 #define AUDIO_MENU { LNG("Audio options  >","Audio options  >"),   OPT_SUBMENU,            { .sub = { &menu_audio, NULL } } },
 #else
 #define AUDIO_MENU
