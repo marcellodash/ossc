@@ -25,6 +25,7 @@
 
 #define SCANLINESTR_MAX     15
 #define HV_MASK_MAX         63
+#define HV_MASK_MAX_BR      15
 #define VIDEO_LPF_MAX       5
 #define SAMPLER_PHASE_MAX   31
 #define SYNC_VTH_MAX        31
@@ -35,7 +36,6 @@
 
 #define SL_MODE_MAX         2
 #define SL_TYPE_MAX         2
-#define LM_MODE_MAX         1
 
 typedef struct {
     alt_u8 sl_mode;
@@ -44,8 +44,16 @@ typedef struct {
     alt_u8 sl_id;
     alt_u8 linemult_target;
     alt_u8 l3_mode;
+    alt_u8 l4_mode;
+    alt_u8 l5_mode;
+    alt_u8 pm_240p;
+    alt_u8 pm_384p;
+    alt_u8 pm_480i;
+    alt_u8 pm_480p;
+    alt_u8 l3m3_hmult;
     alt_u8 h_mask;
     alt_u8 v_mask;
+    alt_u8 mask_br;
     alt_u8 tx_mode;
     alt_u8 s480p_mode;
     alt_u8 sampler_phase;
@@ -64,8 +72,6 @@ typedef struct {
     alt_u8 audio_ext_mclk;
 #endif
 #endif
-    alt_u8 edtv_l2x;
-    alt_u8 interlace_pt;
     alt_u8 def_input;
     color_setup_t col;
 } __attribute__((packed)) avconfig_t;
