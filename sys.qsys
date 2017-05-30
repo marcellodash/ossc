@@ -350,7 +350,7 @@
  <module
    name="epcq_controller_0"
    kind="altera_epcq_controller_mod"
-   version="16.1"
+   version="17.0"
    enabled="1">
   <parameter name="CHIP_SELS" value="1" />
   <parameter name="DDASI" value="0" />
@@ -363,14 +363,14 @@
  <module
    name="i2c_opencores_0"
    kind="i2c_opencores"
-   version="16.1"
+   version="17.0"
    enabled="1">
   <parameter name="dedicated_spi" value="0" />
  </module>
  <module
    name="i2c_opencores_1"
    kind="i2c_opencores"
-   version="16.1"
+   version="17.0"
    enabled="1">
   <parameter name="dedicated_spi" value="1" />
  </module>
@@ -396,7 +396,7 @@
  <module
    name="nios2_hw_crc32_0"
    kind="nios2_hw_crc32"
-   version="16.1"
+   version="17.0"
    enabled="1">
   <parameter name="crc_width" value="32" />
   <parameter name="polynomial" value="79764919" />
@@ -595,7 +595,7 @@
  <module
    name="nios_custom_instr_endianconverter_0"
    kind="altera_nios_custom_instr_endianconverter"
-   version="16.1"
+   version="17.0"
    enabled="1">
   <parameter name="AUTO_DEVICE_FAMILY" value="Cyclone IV E" />
  </module>
