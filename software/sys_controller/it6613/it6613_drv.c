@@ -568,10 +568,11 @@ BOOL EnableAudioOutput4OSSC(ULONG VideoPixelClock,BYTE bAudioDwSampl,BYTE bAudio
 #else
     HDMITX_SetREG_Byte(REG_TX_CLK_CTRL0,~(M_EXT_MCLK_SEL|B_EXT_MCLK_SAMP|B_EXT_MCLK4CTS),(B_INT_MCLK_SAMP|B_EXT_256FS|B_INT_MCLK4CTS));
 #endif
-    //HDMITX_AndREG_Byte(REG_TX_SW_RST,~M_AUD_DIV);
-    if (bAudioDwSampl == 0x1)
-        HDMITX_OrREG_Byte(REG_TX_CLK_CTRL1,B_AUD_DIV2);
 
+    if (bAudioDwSampl == 0x1)
+        HDMITX_SetREG_Byte(REG_TX_CLK_CTRL1,~M_AUD_DIV,B_AUD_DIV2);
+    else
+        HDMITX_SetREG_Byte(REG_TX_CLK_CTRL1,~M_AUD_DIV,B_AUD_NODIV);
 
     HDMITX_AndREG_Byte(REG_TX_SW_RST,~(B_AUD_RST|B_AREF_RST));
     HDMITX_WriteI2C_Byte(REG_TX_AUDIO_CTRL1,Instance[0].bOutputAudioMode);
