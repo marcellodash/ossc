@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2015-2016  Markus Hiienkari <mhiienka@niksula.hut.fi>
+// Copyright (C) 2017  Markus Hiienkari <mhiienka@niksula.hut.fi>
 //
 // This file is part of Open Source Scan Converter project.
 //
@@ -17,40 +17,21 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef FIRMWARE_H_
-#define FIRMWARE_H_
+#ifndef PCM1862_H_
+#define PCM1862_H_
 
-#include "alt_types.h"
+#include "pcm1862_regs.h"
 #include "sysconfig.h"
 
-#define FW_VER_MAJOR            0
-#define FW_VER_MINOR            77
+typedef enum {
+    PCM_INPUT1 = 0,
+    PCM_INPUT2 = 1,
+    PCM_INPUT3 = 2,
+    PCM_INPUT4 = 3
+} pcm_input_t;
 
-#ifdef ENABLE_AUDIO
-#define FW_SUFFIX1              "a"
-#else
-#define FW_SUFFIX1              ""
-#endif
+void pcm_source_sel(pcm_input_t input) ;
 
-#ifdef OSDLANG_JP
-#define FW_SUFFIX2              "j"
-#else
-#define FW_SUFFIX2              ""
-#endif
+int pcm1862_init();
 
-#define FW_UPDATE_RETRIES       3
-
-typedef struct {
-    char fw_key[4];
-    alt_u8 version_major;
-    alt_u8 version_minor;
-    char version_suffix[8];
-    alt_u32 hdr_len;
-    alt_u32 data_len;
-    alt_u32 data_crc;
-    alt_u32 hdr_crc;
-} fw_hdr;
-
-int fw_update();
-
-#endif
+#endif /* PCM1862_H_ */
