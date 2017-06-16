@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CodeLite_Workspace Name="ossc" Database="" Version="10.0.0">
   <Project Name="ossc_rtl" Path="ossc_rtl.project" Active="No"/>
-  <Project Name="ossc_sw_bsp" Path="ossc_sw_bsp.project" Active="No"/>
-  <Project Name="ossc_sw" Path="software/ossc_sw.project" Active="Yes"/>
+  <Project Name="ossc_sw_bsp" Path="ossc_sw_bsp.project" Active="Yes"/>
+  <Project Name="ossc_sw" Path="software/ossc_sw.project" Active="No"/>
   <Project Name="tools" Path="tools.project" Active="No"/>
   <BuildMatrix>
     <WorkspaceConfiguration Name="Debug" Selected="no">
