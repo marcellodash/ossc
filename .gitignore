@@ -20,3 +20,5 @@ software/sys_controller/sys_controller.elf
 .qsys_edit/*
 PLLJ_PLLSPE_INFO.txt
 .codelite/
+greybox_tmp/cbx_args.txt
+tools/create_fw_img
