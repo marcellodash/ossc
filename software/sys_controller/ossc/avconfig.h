@@ -79,6 +79,9 @@ typedef struct {
 #ifdef ENABLE_AUDIO
     alt_u8 audio_dw_sampl;
     alt_u8 audio_swap_lr;
+#ifdef EXT_MCLK
+    alt_u8 audio_ext_mclk;
+#endif
 #endif
     alt_u8 def_input;
     color_setup_t col;

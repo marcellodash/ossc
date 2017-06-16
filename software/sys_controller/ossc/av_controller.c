@@ -76,7 +76,7 @@ char row1[LCD_ROW_LEN+1], row2[LCD_ROW_LEN+1], menu_row1[LCD_ROW_LEN+1], menu_ro
 extern alt_u8 menu_active;
 avinput_t target_mode;
 
-alt_u8 pcm1862_active;
+alt_u8 pcm1862_active = 0;
 
 
 inline void lcd_write_menu()
@@ -101,7 +101,11 @@ inline void SetupAudio(tx_mode_t mode)
         pclk_out *= 1+cm.tx_pixelrep;
 
         printf("PCLK_out: %luHz\n", pclk_out);
+#ifdef EXT_MCLK
+        EnableAudioOutput4OSSC(pclk_out, tc.audio_ext_mclk, tc.audio_dw_sampl, tc.audio_swap_lr);
+#else
         EnableAudioOutput4OSSC(pclk_out, tc.audio_dw_sampl, tc.audio_swap_lr);
+#endif
         HDMITX_SetAudioInfoFrame((BYTE)tc.audio_dw_sampl);
 #ifdef DEBUG
         Switch_HDMITX_Bank(1);
@@ -343,6 +347,9 @@ status_t get_status(tvp_input_t input, video_format format)
         (tc.edtv_l2x != cm.cc.edtv_l2x) ||
         (tc.interlace_pt != cm.cc.interlace_pt) ||
         update_cur_vm ||
+#endif
+#ifdef EXT_MCLK
+        (tc.audio_ext_mclk != cm.cc.audio_ext_mclk) ||
 #endif
         (tc.audio_swap_lr != cm.cc.audio_swap_lr))
         SetupAudio(tc.tx_mode);

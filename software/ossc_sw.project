@@ -183,12 +183,13 @@ CWD=F:\Documents\Workspaces\GitHub\OSSC\OSSC-rel\software\sys_controller]]>
         <Target Name="compile_image">make clean &amp;&amp; make mem_init_generate</Target>
         <Target Name="Build_release">make</Target>
         <Target Name="Build_jp">iconv -f UTF-8 -t SHIFT-JIS ossc/menu.c &gt; ossc/menu_sjis.c &amp;&amp; make OSDLANG=JP</Target>
-        <Target Name="Build_diy_audio_mclk">make ENABLE_AUDIO=y EXT_MCLK=y
+        <Target Name="Build_audio_mclk">make ENABLE_AUDIO=y EXT_MCLK=y
 </Target>
-        <Target Name="Build_diy-audio">make ENABLE_AUDIO=y</Target>
+        <Target Name="Build_audio">make ENABLE_AUDIO=y</Target>
         <RebuildCommand/>
         <CleanCommand>make clean</CleanCommand>
-        <BuildCommand>make APP_CFLAGS_DEFINED_SYMBOLS="-DDIY_AUDIO -DEXT_MCLK"</BuildCommand>
+        <BuildCommand>make ENABLE_AUDIO=y EXT_MCLK=y
+</BuildCommand>
         <PreprocessFileCommand/>
         <SingleFileCommand/>
         <MakefileGenerationCommand/>

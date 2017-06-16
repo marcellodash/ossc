@@ -523,7 +523,11 @@ BOOL EnableAudioOutput(ULONG VideoPixelClock,BYTE bAudioSampleFreq,BYTE ChannelN
     return TRUE ;
 }
 
+#ifdef EXT_MCLK
+BOOL EnableAudioOutput4OSSC(ULONG VideoPixelClock,BYTE bAudioExtMCLK, BYTE bAudioDwSampl,BYTE bAudioSwapLR)
+#else
 BOOL EnableAudioOutput4OSSC(ULONG VideoPixelClock,BYTE bAudioDwSampl,BYTE bAudioSwapLR)
+#endif
 {
     // set N and CTS
     ULONG n = 12288;
@@ -564,7 +568,10 @@ BOOL EnableAudioOutput4OSSC(ULONG VideoPixelClock,BYTE bAudioDwSampl,BYTE bAudio
 
     // define internal/external MCLK and audio down-sampling
 #ifdef EXT_MCLK
-    HDMITX_SetREG_Byte(REG_TX_CLK_CTRL0,~(M_MCLK_SAMP|M_EXT_MCLK_SEL),(B_EXT_MCLK_SAMP|B_EXT_256FS));
+    if (bAudioExtMCLK == 0x1)
+        HDMITX_SetREG_Byte(REG_TX_CLK_CTRL0,~(M_MCLK_SAMP|M_EXT_MCLK_SEL),(B_EXT_MCLK_SAMP|B_EXT_256FS));
+    else
+        HDMITX_SetREG_Byte(REG_TX_CLK_CTRL0,~(M_MCLK_SAMP|M_EXT_MCLK_SEL),(B_INT_MCLK_SAMP|B_EXT_128FS)); // register defaults
 #endif
 
     if (bAudioDwSampl == 0x1)

@@ -56,6 +56,9 @@ const avconfig_t tc_default = {
     .post_coast = DEFAULT_POST_COAST,
 #ifdef ENABLE_AUDIO
     .audio_dw_sampl = DEFAULT_ON,
+#ifdef EXT_MCLK
+    .audio_ext_mclk = DEFAULT_ON,
+#endif
     .tx_mode = TX_HDMI,
 #endif
     .col = {

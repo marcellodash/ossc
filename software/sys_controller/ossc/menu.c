@@ -60,6 +60,7 @@ static const char *sl_mode_desc[] = { LNG("Off","ｵﾌ"), LNG("Auto","ｵｰﾄ
 static const char *sl_type_desc[] = { LNG("Horizontal","ﾖｺ"), LNG("Vertical","ﾀﾃ"), LNG("Alternating","ｺｳｺﾞ") };
 static const char *sl_id_desc[] = { LNG("Top","ｳｴ"), LNG("Bottom","ｼﾀ") };
 static const char *audio_dw_sampl_desc[] = { LNG("Off (fs = 96kHz)","ｵﾌ (fs = 96kHz)"), "2x  (fs = 48kHz)" };
+static const char *audio_ext_mclk_desc[] = { "Off","Auto" };
 
 static void sampler_phase_disp(alt_u8 v) { sniprintf(menu_row2, LCD_ROW_LEN+1, LNG("%d deg","%d ﾄﾞ"), (v*1125)/100); }
 static void sync_vth_disp(alt_u8 v) { sniprintf(menu_row2, LCD_ROW_LEN+1, "%d mV", (v*1127)/100); }
@@ -144,6 +145,9 @@ MENU(menu_compatibility, P99_PROTECT({ \
 MENU(menu_audio, P99_PROTECT({ \
     { LNG("Down-sampling","ﾀﾞｳﾝｻﾝﾌﾟﾘﾝｸﾞ"),       OPT_AVCONFIG_SELECTION, { .sel = { &tc.audio_dw_sampl, OPT_WRAP, SETTING_ITEM(audio_dw_sampl_desc) } } },
     { LNG("Swap left/right","ﾋﾀﾞﾘ/ﾐｷﾞｽﾜｯﾌﾟ"),    OPT_AVCONFIG_SELECTION, { .sel = { &tc.audio_swap_lr,  OPT_WRAP, SETTING_ITEM(off_on_desc) } } },
+#ifdef EXT_MCLK
+    { "Use ext. MCLK", OPT_AVCONFIG_SELECTION, { .sel = {&tc.audio_ext_mclk, OPT_WRAP, SETTING_ITEM(audio_ext_mclk_desc) } } },
+#endif
 }))
 #define AUDIO_MENU { LNG("Audio options  >","ｵｰﾃﾞｨｵｵﾌﾟｼｮﾝ     >"),                  OPT_SUBMENU,            { .sub = { &menu_audio, NULL } } },
 #else
