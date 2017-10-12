@@ -98,7 +98,7 @@ ACDS_VERSION := 17.0
 
 # This following BUILD_NUMBER comment indicates the build number of the tool 
 # used to generate this makefile. 
-# BUILD_NUMBER: 598
+# BUILD_NUMBER: 602
 
 SETTINGS_FILE := settings.bsp
 SOPC_FILE := ../../sys.sopcinfo
