@@ -4,7 +4,7 @@
  * Machine generated for CPU 'nios2_qsys_0' in SOPC Builder design 'sys'
  * SOPC Builder design path: ../../sys.sopcinfo
  *
- * Generated: Thu Oct 26 23:11:44 EEST 2017
+ * Generated: Wed Nov 08 07:33:28 CET 2017
  */
 
 /*
@@ -309,7 +309,7 @@
 #define ONCHIP_MEMORY2_0_IRQ -1
 #define ONCHIP_MEMORY2_0_IRQ_INTERRUPT_CONTROLLER_ID -1
 #define ONCHIP_MEMORY2_0_NAME "/dev/onchip_memory2_0"
-#define ONCHIP_MEMORY2_0_NON_DEFAULT_INIT_FILE_ENABLED 0
+#define ONCHIP_MEMORY2_0_NON_DEFAULT_INIT_FILE_ENABLED 1
 #define ONCHIP_MEMORY2_0_RAM_BLOCK_TYPE "AUTO"
 #define ONCHIP_MEMORY2_0_READ_DURING_WRITE_MODE "DONT_CARE"
 #define ONCHIP_MEMORY2_0_SINGLE_CLOCK_OP 0

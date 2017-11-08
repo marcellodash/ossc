@@ -164,8 +164,7 @@
       <General OutputFile="" IntermediateDirectory="./Release" Command="nios2-download -g --accept-bad-sysid sys_controller.elf" CommandArguments="" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="$(ProjectPath)/sys_controller" PauseExecWhenProcTerminates="no" IsGUIProgram="no" IsEnabled="yes"/>
       <BuildSystem Name="Default"/>
       <Environment EnvVarSetName="NIOS2" DbgSetName="&lt;Use Defaults&gt;">
-        <![CDATA[PWD=F:\Documents\Workspaces\GitHub\OSSC\OSSC-rel\software\sys_controller
-CWD=F:\Documents\Workspaces\GitHub\OSSC\OSSC-rel\software\sys_controller]]>
+        <![CDATA[]]>
       </Environment>
       <Debugger IsRemote="no" RemoteHostName="" RemoteHostPort="" DebuggerPath="" IsExtended="no">
         <DebuggerSearchPaths/>
