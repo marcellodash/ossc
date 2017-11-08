@@ -24,12 +24,17 @@
 #include "sysconfig.h"
 
 // sys_ctrl bits
+#define LT_ACTIVE   (1<<15)
+#define LT_ARMED    (1<<14)
+#define LT_MODE_OFFS    12
 #define SD_SPI_SS_N (1<<7)
 #define LCD_CS_N    (1<<6)
 #define LCD_RS      (1<<5)
 #define LCD_BL      (1<<4)
 #define VIDGEN_OFF  (1<<1)
 #define AV_RESET_N  (1<<0)
+
+#define LT_CTRL_MASK    0xf000
 
 // HDMI_TX definitions
 #define HDMITX_MODE_MASK            0x00040000
@@ -108,9 +113,11 @@ typedef struct {
 inline void lcd_write_menu();
 inline void lcd_write_status();
 
-void vm_display(alt_u8 code);
+void vm_select();
 void vm_tweak(alt_u16 v);
-void load_profile_disp(alt_u8 code);
-void save_profile_disp(alt_u8 code);
+int load_profile();
+int save_profile();
+
+int latency_test();
 
 #endif

@@ -49,7 +49,7 @@
 #define SYNC_LOSS_THOLD         -5
 #define STATUS_TIMEOUT          10000
 
-alt_u8 sys_ctrl;
+alt_u16 sys_ctrl;
 
 // Current mode
 avmode_t cm;
@@ -68,7 +68,7 @@ alt_u8 target_type;
 alt_u8 stable_frames;
 alt_u8 update_cur_vm;
 
-alt_u8 vm_sel, vm_edit, profile_sel;
+alt_u8 vm_sel, vm_edit, profile_sel, lt_sel;
 alt_u16 tc_h_samplerate, tc_h_synclen, tc_h_bporch, tc_h_active, tc_v_synclen, tc_v_bporch, tc_v_active;
 
 char row1[LCD_ROW_LEN+1], row2[LCD_ROW_LEN+1], menu_row1[LCD_ROW_LEN+1], menu_row2[LCD_ROW_LEN+1];
@@ -310,7 +310,8 @@ status_t get_status(tvp_input_t input, video_format format)
         (tc.h_mask != cm.cc.h_mask) ||
         (tc.v_mask != cm.cc.v_mask) ||
         (tc.mask_br != cm.cc.mask_br) ||
-        (tc.ar_256col != cm.cc.ar_256col))
+        (tc.ar_256col != cm.cc.ar_256col) ||
+        (tc.reverse_lpf != cm.cc.reverse_lpf))
         status = (status < INFO_CHANGE) ? INFO_CHANGE : status;
 
     if (tc.sampler_phase != cm.cc.sampler_phase) {
@@ -371,8 +372,8 @@ status_t get_status(tvp_input_t input, video_format format)
 // v_info:     [31:29]           [28:27]               [26]           [25:20]       [19:17]          [16:11]            [10:0]
 //           | V_MULTMODE[2:0] | V_SCANLINEMODE[1:0] | V_SCANLINEID | V_MASK[5:0] | V_SYNCLEN[2:0] | V_BACKPORCH[5:0] | V_ACTIVE[10:0] |
 //
-// extra:      [31:8]   [7:4]            [3:0]
-//           |        | H_MASK_BR[3:0] | H_SCANLINESTR[3:0] |
+// extra:      [31:13]  [12:8]          [7:4]            [3:0]
+//           |        | X_REV_LPF_STR | H_MASK_BR[3:0] | H_SCANLINESTR[3:0] |
 //
 void set_videoinfo()
 {
@@ -467,7 +468,8 @@ void set_videoinfo()
                                             (video_modes[cm.id].v_synclen<<17) |
                                             (v_backporch<<11) |
                                             v_active);
-    IOWR_ALTERA_AVALON_PIO_DATA(PIO_6_BASE, (cm.cc.mask_br<<4) |
+    IOWR_ALTERA_AVALON_PIO_DATA(PIO_6_BASE, (cm.cc.reverse_lpf<<8) |
+                                            (cm.cc.mask_br<<4) |
                                             cm.cc.sl_str);
 }
 
@@ -542,79 +544,33 @@ void program_mode()
     }
 }
 
-void load_profile_disp(alt_u8 code) {
+int load_profile() {
     int retval;
 
-    switch ((menucode_id)code) {
-        case VAL_MINUS:
-            profile_sel = (profile_sel > 0) ? profile_sel-1 : profile_sel;
-            break;
-        case VAL_PLUS:
-            profile_sel = (profile_sel < MAX_PROFILE) ? profile_sel+1 : profile_sel;
-            break;
-        case OPT_SELECT:
-            retval = read_userdata(profile_sel);
-            sniprintf(menu_row2, LCD_ROW_LEN+1, "%s", (retval==0) ? "Loaded" : "Load failed");
-            lcd_write_menu();
-            if (retval == 0)
-                write_userdata(INIT_CONFIG_SLOT);
-            usleep(500000);
-            break;
-        case NO_ACTION:
-        default:
-            sniprintf(menu_row2, LCD_ROW_LEN+1, "Slot %u", profile_sel);
-            break;
-    }
+    retval = read_userdata(profile_sel);
+    if (retval == 0)
+        write_userdata(INIT_CONFIG_SLOT);
+    return retval;
 }
 
-void save_profile_disp(alt_u8 code) {
+int save_profile() {
     int retval;
 
-    switch ((menucode_id)code) {
-        case VAL_MINUS:
-            profile_sel = (profile_sel > 0) ? profile_sel-1 : profile_sel;
-            break;
-        case VAL_PLUS:
-            profile_sel = (profile_sel < MAX_PROFILE) ? profile_sel+1 : profile_sel;
-            break;
-        case OPT_SELECT:
-            retval = write_userdata(profile_sel);
-            sniprintf(menu_row2, LCD_ROW_LEN+1, "%s", (retval==0) ? "Saved" : "Save failed");
-            lcd_write_menu();
-            if (retval == 0)
-                write_userdata(INIT_CONFIG_SLOT);
-            usleep(500000);
-            break;
-        case NO_ACTION:
-        default:
-            sniprintf(menu_row2, LCD_ROW_LEN+1, "Slot %u", profile_sel);
-            break;
-    }
+    retval = write_userdata(profile_sel);
+    if (retval == 0)
+        write_userdata(INIT_CONFIG_SLOT);
+    return retval;
 }
 
-void vm_display(alt_u8 code) {
-    switch ((menucode_id)code) {
-        case VAL_MINUS:
-            vm_sel = (vm_sel > 0) ? vm_sel-1 : vm_sel;
-            break;
-        case VAL_PLUS:
-            vm_sel = (vm_sel < VIDEO_MODES_CNT-1) ? vm_sel+1 : vm_sel;
-            break;
-        case OPT_SELECT:
-            vm_edit = vm_sel;
-            tc_h_samplerate = video_modes[vm_edit].h_total;
-            tc_h_synclen = (alt_u16)video_modes[vm_edit].h_synclen;
-            tc_h_bporch = (alt_u16)video_modes[vm_edit].h_backporch;
-            tc_h_active = video_modes[vm_edit].h_active;
-            tc_v_synclen = (alt_u16)video_modes[vm_edit].v_synclen;
-            tc_v_bporch = (alt_u16)video_modes[vm_edit].v_backporch;
-            tc_v_active = video_modes[vm_edit].v_active;
-            break;
-        case NO_ACTION:
-        default:
-            strncpy(menu_row2, video_modes[vm_sel].name, LCD_ROW_LEN+1);
-            break;
-    }
+void vm_select() {
+    vm_edit = vm_sel;
+    tc_h_samplerate = video_modes[vm_edit].h_total;
+    tc_h_synclen = (alt_u16)video_modes[vm_edit].h_synclen;
+    tc_h_bporch = (alt_u16)video_modes[vm_edit].h_backporch;
+    tc_h_active = video_modes[vm_edit].h_active;
+    tc_v_synclen = (alt_u16)video_modes[vm_edit].v_synclen;
+    tc_v_bporch = (alt_u16)video_modes[vm_edit].v_backporch;
+    tc_v_active = video_modes[vm_edit].v_active;
 }
 
 void vm_tweak(alt_u16 v) {
@@ -646,7 +602,7 @@ int init_hw()
 
     // Reset hardware
     IOWR_ALTERA_AVALON_PIO_DATA(PIO_0_BASE, AV_RESET_N|LCD_BL);
-    IOWR_ALTERA_AVALON_PIO_DATA(PIO_0_BASE, 0x00);
+    IOWR_ALTERA_AVALON_PIO_DATA(PIO_0_BASE, 0x0000);
     IOWR_ALTERA_AVALON_PIO_DATA(PIO_3_BASE, 0x00000000);
     IOWR_ALTERA_AVALON_PIO_DATA(PIO_5_BASE, 0x00000000);
     usleep(10000);
@@ -720,6 +676,73 @@ int init_hw()
 
     return 0;
 }
+
+#ifdef DEBUG
+int latency_test()
+{
+    sniprintf(menu_row2, LCD_ROW_LEN+1, "Unavailable");
+    lcd_write_menu();
+    usleep(1000000);
+    return -1;
+}
+#else
+int latency_test() {
+    alt_u32 lt_status, btn_vec, btn_vec_prev=1;
+    alt_u16 latency_ms_x100, stb_ms_x100;
+    alt_u8 position = lt_sel+1;
+
+    sys_ctrl |= LT_ACTIVE|(position<<LT_MODE_OFFS);
+    IOWR_ALTERA_AVALON_PIO_DATA(PIO_0_BASE, sys_ctrl);
+    sniprintf(menu_row2, LCD_ROW_LEN+1, "OK to init");
+    lcd_write_menu();
+
+    while (1) {
+        btn_vec = IORD_ALTERA_AVALON_PIO_DATA(PIO_1_BASE) & RC_MASK;
+
+        if ((btn_vec_prev == 0) && (btn_vec != 0)) {
+            if (btn_vec == rc_keymap[RC_OK]) {
+                sys_ctrl &= ~(3<<LT_MODE_OFFS);
+                IOWR_ALTERA_AVALON_PIO_DATA(PIO_0_BASE, sys_ctrl);
+                menu_row2[0] = 0;
+                lcd_write_menu();
+                usleep(400000);
+                sys_ctrl |= LT_ARMED|(position<<LT_MODE_OFFS);
+                IOWR_ALTERA_AVALON_PIO_DATA(PIO_0_BASE, sys_ctrl);
+                //while (!((lt_status = IORD_ALTERA_AVALON_PIO_DATA(PIO_7_BASE)) & (1<<31))) {} //Hangs if sync is lost
+                SPI_Timer_On(1000);
+                while ((SPI_Timer_Status()==TRUE)) {
+                    lt_status = IORD_ALTERA_AVALON_PIO_DATA(PIO_7_BASE);
+                    if (lt_status & (1<<31))
+                        break;
+                }
+                SPI_Timer_Off();
+                latency_ms_x100 = lt_status & 0xffff;
+                stb_ms_x100 = (lt_status >> 16) & 0xfff;
+                if ((latency_ms_x100 == 0) || (latency_ms_x100 == 0xffff))
+                    sniprintf(menu_row2, LCD_ROW_LEN+1, "Timeout");
+                else if (stb_ms_x100 == 0xfff)
+                    sniprintf(menu_row2, LCD_ROW_LEN+1, "%u.%.2ums", latency_ms_x100/100, latency_ms_x100%100);
+                else
+                    sniprintf(menu_row2, LCD_ROW_LEN+1, "%u.%.2ums/%u.%.2ums", latency_ms_x100/100, latency_ms_x100%100, stb_ms_x100/100, stb_ms_x100%100);
+                lcd_write_menu();
+            } else if (btn_vec == rc_keymap[RC_BACK]) {
+                break;
+            }
+
+            sys_ctrl &= ~LT_ARMED;
+            IOWR_ALTERA_AVALON_PIO_DATA(PIO_0_BASE, sys_ctrl);
+        }
+
+        btn_vec_prev = btn_vec;
+        usleep(WAITLOOP_SLEEP_US);
+    }
+
+    sys_ctrl &= ~LT_CTRL_MASK;
+    IOWR_ALTERA_AVALON_PIO_DATA(PIO_0_BASE, sys_ctrl);
+
+    return 0;
+}
+#endif
 
 // Enable chip outputs
 void enable_outputs()

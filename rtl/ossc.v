@@ -54,7 +54,7 @@ module ossc (
     inout [3:0] SD_DAT
 );
 
-wire [7:0] sys_ctrl;
+wire [15:0] sys_ctrl;
 wire h_unstable;
 wire [1:0] pclk_lock;
 wire [1:0] pll_lock_lost;
@@ -86,6 +86,14 @@ reg HSYNC_in_L, VSYNC_in_L, FID_in_L;
 
 reg [1:0] btn_L, btn_LL;
 reg ir_rx_L, ir_rx_LL, HDMI_TX_INT_N_L, HDMI_TX_INT_N_LL, HDMI_TX_MODE_L, HDMI_TX_MODE_LL;
+
+wire lt_active = sys_ctrl[15];
+wire lt_armed = sys_ctrl[14];
+wire [1:0] lt_mode = sys_ctrl[13:12];
+wire [1:0] lt_mode_synced;
+wire [15:0] lt_lat_result;
+wire [11:0] lt_stb_result;
+wire lt_finished;
 
 // Latch inputs from TVP7002 (synchronized to PCLK_in)
 always @(posedge PCLK_in or negedge reset_n)
@@ -193,7 +201,8 @@ sys sys_inst(
     .pio_3_h_info_out_export                (h_info),
     .pio_4_h_info2_out_export               (h_info2),
     .pio_5_v_info_out_export                (v_info),
-    .pio_6_extra_info_out_export            (extra_info)
+    .pio_6_extra_info_out_export            (extra_info),
+    .pio_7_lt_results_in_export             ({lt_finished, 3'h0, lt_stb_result, lt_lat_result})
 );
 
 scanconverter scanconverter_inst (
@@ -222,7 +231,9 @@ scanconverter scanconverter_inst (
     .pclk_lock      (pclk_lock),
     .pll_lock_lost  (pll_lock_lost),
     .vmax           (vmax),
-    .vmax_tvp       (vmax_tvp)
+    .vmax_tvp       (vmax_tvp),
+    .lt_active      (lt_active),
+    .lt_mode        (lt_mode_synced)
 );
 
 ir_rcv ir0 (
@@ -234,10 +245,27 @@ ir_rcv ir0 (
     .ir_code_cnt    (ir_code_cnt)
 );
 
+lat_tester lt0 (
+    .clk27          (clk27),
+    .pclk           (HDMI_TX_PCLK),
+    .active         (lt_active),
+    .armed          (lt_armed),
+    .sensor         (btn_LL[1]),
+    .trigger        (HDMI_TX_DE & HDMI_TX_GD[0]),
+    .VSYNC_in       (HDMI_TX_VS),
+    .mode_in        (lt_mode),
+    .mode_synced    (lt_mode_synced),
+    .lat_result     (lt_lat_result),
+    .stb_result     (lt_stb_result),
+    .finished       (lt_finished)
+);
+
 `ifdef VIDEOGEN
 videogen vg0 (
     .clk27          (clk27),
     .reset_n        (cpu_reset_n & videogen_sel),
+    .lt_active      (lt_active),
+    .lt_mode        (lt_mode_synced),
     .R_out          (R_out_videogen),
     .G_out          (G_out_videogen),
     .B_out          (B_out_videogen),

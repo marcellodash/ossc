@@ -17,9 +17,13 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
+`include "lat_tester_includes.v"
+
 module videogen (
     input clk27,
     input reset_n,
+    input lt_active,
+    input [1:0] lt_mode,
     output [7:0] R_out,
     output [7:0] G_out,
     output [7:0] B_out,
@@ -114,12 +118,29 @@ begin
         V_gen <= 8'h00;
         ENABLE_out <= 1'b0;
     end else begin
-        if ((h_cnt < X_START+H_OVERSCAN) || (h_cnt >= X_START+H_OVERSCAN+H_AREA) || (v_cnt < Y_START+V_OVERSCAN) || (v_cnt >= Y_START+V_OVERSCAN+V_AREA))
-            V_gen <= (h_cnt[0] ^ v_cnt[0]) ? 8'hff : 8'h00;
-        else if ((h_cnt < X_START+H_OVERSCAN+H_BORDER) || (h_cnt >= X_START+H_OVERSCAN+H_AREA-H_BORDER) || (v_cnt < Y_START+V_OVERSCAN+V_BORDER) || (v_cnt >= Y_START+V_OVERSCAN+V_AREA-V_BORDER))
-            V_gen <= 8'h50;
-        else
-            V_gen <= (h_cnt - (X_START+H_OVERSCAN+H_BORDER)) >> 1;
+        if (lt_active) begin
+            case (lt_mode)
+                default: begin
+                    V_gen <= 8'h00;
+                end
+                `LT_POS_TOPLEFT: begin
+                    V_gen <= ((h_cnt < (X_START+(H_ACTIVE/`LT_WIDTH_DIV))) && (v_cnt < (Y_START+(V_ACTIVE/`LT_HEIGHT_DIV)))) ? 8'hff : 8'h00;
+                end
+                `LT_POS_CENTER: begin
+                    V_gen <= ((h_cnt >= (X_START+(H_ACTIVE/2)-(H_ACTIVE/(`LT_WIDTH_DIV*2)))) && (h_cnt < (X_START+(H_ACTIVE/2)+(H_ACTIVE/(`LT_WIDTH_DIV*2)))) && (v_cnt >= (Y_START+(V_ACTIVE/2)-(V_ACTIVE/(`LT_HEIGHT_DIV*2)))) && (v_cnt < (Y_START+(V_ACTIVE/2)+(V_ACTIVE/(`LT_HEIGHT_DIV*2))))) ? 8'hff : 8'h00;
+                end
+                `LT_POS_BOTTOMRIGHT: begin
+                    V_gen <= ((h_cnt >= (X_START+H_ACTIVE-(H_ACTIVE/`LT_WIDTH_DIV))) && (v_cnt >= (Y_START+V_ACTIVE-(V_ACTIVE/`LT_HEIGHT_DIV)))) ? 8'hff : 8'h00;
+                end
+            endcase
+        end else begin
+            if ((h_cnt < X_START+H_OVERSCAN) || (h_cnt >= X_START+H_OVERSCAN+H_AREA) || (v_cnt < Y_START+V_OVERSCAN) || (v_cnt >= Y_START+V_OVERSCAN+V_AREA))
+                V_gen <= (h_cnt[0] ^ v_cnt[0]) ? 8'hff : 8'h00;
+            else if ((h_cnt < X_START+H_OVERSCAN+H_BORDER) || (h_cnt >= X_START+H_OVERSCAN+H_AREA-H_BORDER) || (v_cnt < Y_START+V_OVERSCAN+V_BORDER) || (v_cnt >= Y_START+V_OVERSCAN+V_AREA-V_BORDER))
+                V_gen <= 8'h50;
+            else
+                V_gen <= (h_cnt - (X_START+H_OVERSCAN+H_BORDER)) >> 1;
+        end
 
         ENABLE_out <= (h_cnt >= X_START && h_cnt < X_START + H_ACTIVE && v_cnt >= Y_START && v_cnt < Y_START + V_ACTIVE);
     end
