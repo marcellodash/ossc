@@ -31,7 +31,8 @@ module lcdbl_timeout(
 );
 
 localparam     tocnt_w = 32;
-parameter  tocnt_start = 32'd1215000000;  // 45s (number = timeout * 27000000)
+parameter  tocnt_init  = 32'd94500000;    //  3.5s (number = timeout * 27000000)
+parameter  tocnt_start = 32'd1215000000;  // 45.0s (number = timeout * 27000000)
                                           // max. 2^32-1 = 4294967295 (~159s)
 
 input             clk27;
@@ -44,24 +45,25 @@ output reg [ 1:0] btn_out = 2'b11;
 input             lcdbl_off;
 output reg        lcdbl_out = 1'b1;
 
-reg [tocnt_w-1:0] timeout_cnt = tocnt_start;
-reg pass_vals = 1'b0;
+reg [tocnt_w-1:0] timeout_cnt = tocnt_init;
+reg pass_vals = 1'b1;
 
 wire in_active = (ir_in[15:0] != 0) || (~&btn_in);
 
-reg init_phase     = 1'b1;
+reg        init_phase  = 1'b1;
+reg [19:0] init_hold   = {20{1'b1}};
+
 reg lcdbl_off_L    = 1'b0;
 reg turn_lcdbl_off = 1'b0;
 
-wire trigger_lcdbl_on  = in_active || !reset_n;
+wire trigger_lcdbl_on  = !init_phase && (in_active || !reset_n);
 wire trigger_lcdbl_off = !init_phase && (lcdbl_off_L ^ lcdbl_off);
 
 always @(posedge clk27)
 begin
-
     if (|timeout_cnt) begin
         if (trigger_lcdbl_on)
-            timeout_cnt <= tocnt_start;
+            timeout_cnt <= reset_n ? tocnt_start : tocnt_init;
         else
             timeout_cnt <= timeout_cnt - 1;
 
@@ -87,17 +89,24 @@ begin
 
         lcdbl_out <= 1'b1;
     end else begin
-        pass_vals     <= 1'b0;
+        pass_vals     <= !reset_n;
          ir_out[15:0] <= 16'h0;
         btn_out       <= 2'b11;
         lcdbl_out     <= 1'b0;
 
-        init_phase    <= !reset_n;
-
         if (!turn_lcdbl_off && trigger_lcdbl_on)
-            timeout_cnt <= tocnt_start;
+            timeout_cnt <= reset_n ? tocnt_start : tocnt_init;
         if (!in_active)
             turn_lcdbl_off <= 1'b0;
+    end
+
+    if (!reset_n) begin
+        init_phase <= 1'b1;
+        init_hold  <= {20{1'b1}};
+    end else if (|init_hold) begin
+        init_hold <= init_hold - 1'b1;
+    end else begin
+        init_phase <= 1'b0;
     end
 
     ir_out[23:16] <= ir_in[23:16];
