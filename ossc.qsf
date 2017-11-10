@@ -237,6 +237,7 @@ set_global_assignment -name SDC_FILE ossc.sdc
 set_global_assignment -name QSYS_FILE sys.qsys
 set_global_assignment -name VERILOG_FILE rtl/ossc.v
 set_global_assignment -name VERILOG_FILE rtl/scanconverter.v
+set_global_assignment -name VERILOG_FILE rtl/lcdbl_timeout.v
 set_global_assignment -name VERILOG_FILE rtl/lat_tester.v
 set_global_assignment -name QIP_FILE rtl/linebuf.qip
 set_global_assignment -name QIP_FILE rtl/pll_2x.qip

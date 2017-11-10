@@ -62,8 +62,8 @@ wire [31:0] h_info, h_info2, v_info, extra_info;
 wire [10:0] vmax, vmax_tvp;
 wire [1:0] fpga_vsyncgen;
 
-wire [15:0] ir_code;
-wire [7:0] ir_code_cnt;
+wire [15:0] ir_code[0:1];
+wire [7:0] ir_code_cnt[0:1];
 
 wire [7:0] R_out, G_out, B_out;
 wire HSYNC_out;
@@ -84,8 +84,11 @@ reg cpu_reset_n = 1'b0;
 reg [7:0] R_in_L, G_in_L, B_in_L;
 reg HSYNC_in_L, VSYNC_in_L, FID_in_L;
 
-reg [1:0] btn_L, btn_LL;
-reg ir_rx_L, ir_rx_LL, HDMI_TX_INT_N_L, HDMI_TX_INT_N_LL, HDMI_TX_MODE_L, HDMI_TX_MODE_LL;
+reg [1:0] btn_L;
+wire [1:0] btn_LL;
+reg ir_rx_L, HDMI_TX_INT_N_L, HDMI_TX_INT_N_LL, HDMI_TX_MODE_L, HDMI_TX_MODE_LL;
+
+reg turn_LCD_BL_off = 1'b0; // toggle signalling
 
 wire lt_active = sys_ctrl[15];
 wire lt_armed = sys_ctrl[14];
@@ -119,23 +122,21 @@ end
 always @(posedge clk27 or negedge cpu_reset_n)
 begin
     if (!cpu_reset_n) begin
-        btn_L <= 2'b00;
-        btn_LL <= 2'b00;
+        btn_L <= 2'b11;
         ir_rx_L <= 1'b0;
-        ir_rx_LL <= 1'b0;
         HDMI_TX_INT_N_L <= 1'b0;
         HDMI_TX_INT_N_LL <= 1'b0;
         HDMI_TX_MODE_L <= 1'b0;
         HDMI_TX_MODE_LL <= 1'b0;
+        turn_LCD_BL_off <= 1'b0;
     end else begin
         btn_L <= btn;
-        btn_LL <= btn_L;
         ir_rx_L <= ir_rx;
-        ir_rx_LL <= ir_rx_L;
         HDMI_TX_INT_N_L <= HDMI_TX_INT_N;
         HDMI_TX_INT_N_LL <= HDMI_TX_INT_N_L;
         HDMI_TX_MODE_L <= HDMI_TX_MODE;
         HDMI_TX_MODE_LL <= HDMI_TX_MODE_L;
+        turn_LCD_BL_off <= sys_ctrl[4];
     end
 end
 
@@ -156,13 +157,13 @@ assign LED_R = HSYNC_in_L;
 assign LED_G = VSYNC_in_L;
 `else
 assign LED_R = videogen_sel ? 1'b0 : ((pll_lock_lost != 2'h0)|h_unstable);
-assign LED_G = (ir_code == 0);
+assign LED_G = (ir_code[0] == 0);
 `endif
 
 assign SD_DAT[3] = sys_ctrl[7]; //SD_SPI_SS_N
 assign LCD_CS_N = sys_ctrl[6];
 assign LCD_RS = sys_ctrl[5];
-assign LCD_BL = sys_ctrl[4];    //reset_n in v1.2 PCB
+// assign LCD_BL = sys_ctrl[4];    //reset_n in v1.2 PCB
 
 `ifdef VIDEOGEN
 wire videogen_sel;
@@ -196,7 +197,7 @@ sys sys_inst(
     .i2c_opencores_1_export_sda_pad_io      (SD_CMD),
     .i2c_opencores_1_export_spi_miso_pad_i  (SD_DAT[0]),
     .pio_0_sys_ctrl_out_export              (sys_ctrl),
-    .pio_1_controls_in_export               ({ir_code_cnt, 5'b00000, HDMI_TX_MODE_LL, btn_LL, ir_code}),
+    .pio_1_controls_in_export               ({ir_code_cnt[1], 5'b00000, HDMI_TX_MODE_LL, btn_LL, ir_code[1]}),
     .pio_2_status_in_export                 ({VSYNC_out, 2'b00, vmax_tvp, fpga_vsyncgen, 5'h0, vmax}),
     .pio_3_h_info_out_export                (h_info),
     .pio_4_h_info2_out_export               (h_info2),
@@ -239,10 +240,10 @@ scanconverter scanconverter_inst (
 ir_rcv ir0 (
     .clk27          (clk27),
     .reset_n        (cpu_reset_n),
-    .ir_rx          (ir_rx_LL),
-    .ir_code        (ir_code),
+    .ir_rx          (ir_rx_L),
+    .ir_code        (ir_code[0]),
     .ir_code_ack    (),
-    .ir_code_cnt    (ir_code_cnt)
+    .ir_code_cnt    (ir_code_cnt[0])
 );
 
 lat_tester lt0 (
@@ -250,7 +251,7 @@ lat_tester lt0 (
     .pclk           (HDMI_TX_PCLK),
     .active         (lt_active),
     .armed          (lt_armed),
-    .sensor         (btn_LL[1]),
+    .sensor         (btn_L),
     .trigger        (HDMI_TX_DE & HDMI_TX_GD[0]),
     .VSYNC_in       (HDMI_TX_VS),
     .mode_in        (lt_mode),
@@ -258,6 +259,18 @@ lat_tester lt0 (
     .lat_result     (lt_lat_result),
     .stb_result     (lt_stb_result),
     .finished       (lt_finished)
+);
+
+lcdbl_timeout lcdbl(
+    .clk27          (clk27),
+    .reset_n        (reset_n),
+    .lt_active      (lt_active),
+    .ir_in          ({ir_code_cnt[0],ir_code[0]}),
+    .ir_out         ({ir_code_cnt[1],ir_code[1]}),
+    .btn_in         (btn_L),
+    .btn_out        (btn_LL),
+    .lcdbl_off      (turn_LCD_BL_off),
+    .lcdbl_out      (LCD_BL)
 );
 
 `ifdef VIDEOGEN
